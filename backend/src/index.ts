@@ -1,6 +1,9 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { AnalysisEngine } from "./analysis/analysisEngine.js";
 import { AiSummaryService } from "./ai/summary.js";
 import { initDatabase } from "./db/sqlite.js";
@@ -25,7 +28,7 @@ const port = Number(process.env.PORT ?? 4000);
 const frontendOrigin = process.env.FRONTEND_ORIGIN ?? "http://localhost:3000";
 const useMockData = (process.env.USE_MOCK_DATA ?? "true").toLowerCase() === "true";
 
-app.use(cors({ origin: frontendOrigin }));
+app.use(cors({ origin: frontendOrigin === "*" ? true : frontendOrigin }));
 app.use(express.json());
 
 const db = initDatabase();
@@ -379,6 +382,27 @@ app.get("/api/portfolio", async (_req, res, next) => {
     });
   } catch (error) { next(error); }
 });
+
+// ─── Serve frontend static build in production ────────────
+
+const frontendOutDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../frontend/out"
+);
+
+if (fs.existsSync(frontendOutDir)) {
+  app.use(express.static(frontendOutDir));
+  // SPA fallback: serve index.html for any non-API route
+  app.get(/^(?!\/api\/).*/, (_req, res) => {
+    const reqPath = _req.path.replace(/\/$/, "") || "/index";
+    const htmlFile = path.join(frontendOutDir, `${reqPath}.html`);
+    if (fs.existsSync(htmlFile)) {
+      res.sendFile(htmlFile);
+    } else {
+      res.sendFile(path.join(frontendOutDir, "index.html"));
+    }
+  });
+}
 
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(error);

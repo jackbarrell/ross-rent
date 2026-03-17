@@ -1,5 +1,20 @@
 import { PropertyDetail } from "./PropertyDetail";
 
+export function generateStaticParams() {
+  const cities = [
+    { prefix: "prop-aus", count: 5 },
+    { prefix: "prop-bna", count: 5 },
+    { prefix: "prop-scf", count: 5 },
+  ];
+  const params: Array<{ id: string }> = [];
+  for (const c of cities) {
+    for (let i = 1; i <= c.count; i++) {
+      params.push({ id: `${c.prefix}-${String(i).padStart(3, "0")}` });
+    }
+  }
+  return params;
+}
+
 export default async function PropertyDetailPage({
   params,
 }: {

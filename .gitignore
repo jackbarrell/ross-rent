@@ -1,6 +1,7 @@
 node_modules
 **/node_modules
 .next
+frontend/out
 dist
 backend/.local
 .env

@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ross-rent
+    runtime: node
+    plan: free
+    buildCommand: npm ci --prefix backend && npm run build --prefix backend && npm ci --prefix frontend && npm run build --prefix frontend
+    startCommand: cd backend && node dist/index.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: USE_MOCK_DATA
+        value: "true"
+      - key: FRONTEND_ORIGIN
+        value: "*"
+      - key: NODE_ENV
+        value: production
