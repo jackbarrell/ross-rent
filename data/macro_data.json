@@ -1,0 +1,59 @@
+{
+  "Austin,TX": {
+    "locationKey": "Austin,TX",
+    "populationGrowth": 0.028,
+    "gdpGrowthProxy": 0.042,
+    "tourismDemandIndex": 8.2,
+    "medianHomePrice": 485000,
+    "homePriceAppreciation": 0.035,
+    "unemploymentRate": 0.032,
+    "crimeIndex": 4.2,
+    "walkScore": 42,
+    "economicTrendScore": 82,
+    "marketGrowthScore": 85,
+    "notes": [
+      "Strong tech sector job growth driving population influx",
+      "Major festival and event market (SXSW, ACL, F1)",
+      "Rapid housing supply expansion may moderate price growth",
+      "Short-term rental regulations tightening in some zones"
+    ]
+  },
+  "Nashville,TN": {
+    "locationKey": "Nashville,TN",
+    "populationGrowth": 0.018,
+    "gdpGrowthProxy": 0.036,
+    "tourismDemandIndex": 8.8,
+    "medianHomePrice": 435000,
+    "homePriceAppreciation": 0.032,
+    "unemploymentRate": 0.028,
+    "crimeIndex": 5.1,
+    "walkScore": 28,
+    "economicTrendScore": 78,
+    "marketGrowthScore": 80,
+    "notes": [
+      "Tourism-driven economy with strong music and entertainment sector",
+      "Bachelorette / party destination supports high weekend ADR",
+      "New STR permit requirements in core neighbourhoods",
+      "Healthcare sector provides economic stability"
+    ]
+  },
+  "Scottsdale,AZ": {
+    "locationKey": "Scottsdale,AZ",
+    "populationGrowth": 0.022,
+    "gdpGrowthProxy": 0.038,
+    "tourismDemandIndex": 7.9,
+    "medianHomePrice": 625000,
+    "homePriceAppreciation": 0.030,
+    "unemploymentRate": 0.035,
+    "crimeIndex": 3.1,
+    "walkScore": 22,
+    "economicTrendScore": 75,
+    "marketGrowthScore": 77,
+    "notes": [
+      "Strong winter snowbird demand creates high seasonality",
+      "Spring training baseball drives Feb–Apr bookings",
+      "Summer heat suppresses Jun–Aug demand significantly",
+      "Arizona state law preempts most local STR restrictions"
+    ]
+  }
+}

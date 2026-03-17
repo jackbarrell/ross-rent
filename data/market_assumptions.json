@@ -1,0 +1,28 @@
+{
+  "default": {
+    "baseMonthlyDays": 30,
+    "vacancyBuffer": 0.03,
+    "managementFeeRate": 0.15,
+    "maintenanceRate": 0.08,
+    "utilitiesMonthly": 350,
+    "insuranceAnnual": 2100,
+    "taxRateAnnual": 0.012,
+    "suppliesMonthly": 140,
+    "platformFeeRate": 0.03,
+    "capitalReserveRate": 0.04
+  },
+  "locations": {
+    "Austin,TX": {
+      "seasonalityIndex": 1.03,
+      "riskNotes": ["Event-driven demand variability", "Regulatory watchlist by zone"]
+    },
+    "Nashville,TN": {
+      "seasonalityIndex": 1.08,
+      "riskNotes": ["Weekend concentration of demand", "Permit policy shifts possible"]
+    },
+    "Scottsdale,AZ": {
+      "seasonalityIndex": 1.12,
+      "riskNotes": ["High summer demand softness", "Pool maintenance cost volatility"]
+    }
+  }
+}

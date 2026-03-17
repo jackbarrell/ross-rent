@@ -1,0 +1,100 @@
+[
+  { "id": "acc-001", "propertyId": "prop-atx-001", "date": "2025-07-31", "category": "rental_income", "description": "July rental income (Airbnb + Vrbo)", "amount": 2655, "type": "income" },
+  { "id": "acc-002", "propertyId": "prop-atx-001", "date": "2025-07-31", "category": "cleaning", "description": "Turnover cleaning (2 bookings)", "amount": 300, "type": "expense" },
+  { "id": "acc-003", "propertyId": "prop-atx-001", "date": "2025-07-31", "category": "utilities", "description": "July utilities", "amount": 340, "type": "expense" },
+  { "id": "acc-004", "propertyId": "prop-atx-001", "date": "2025-07-31", "category": "supplies", "description": "Guest supplies", "amount": 120, "type": "expense" },
+  { "id": "acc-005", "propertyId": "prop-atx-001", "date": "2025-07-31", "category": "management", "description": "Property management fee (15%)", "amount": 398, "type": "expense" },
+
+  { "id": "acc-006", "propertyId": "prop-atx-001", "date": "2025-08-31", "category": "rental_income", "description": "August rental income", "amount": 3090, "type": "income" },
+  { "id": "acc-007", "propertyId": "prop-atx-001", "date": "2025-08-31", "category": "cleaning", "description": "Turnover cleaning (2 bookings)", "amount": 300, "type": "expense" },
+  { "id": "acc-008", "propertyId": "prop-atx-001", "date": "2025-08-31", "category": "utilities", "description": "August utilities", "amount": 380, "type": "expense" },
+  { "id": "acc-009", "propertyId": "prop-atx-001", "date": "2025-08-31", "category": "supplies", "description": "Guest supplies", "amount": 135, "type": "expense" },
+  { "id": "acc-010", "propertyId": "prop-atx-001", "date": "2025-08-31", "category": "management", "description": "Property management fee (15%)", "amount": 464, "type": "expense" },
+
+  { "id": "acc-011", "propertyId": "prop-atx-001", "date": "2025-09-30", "category": "rental_income", "description": "September rental income", "amount": 1980, "type": "income" },
+  { "id": "acc-012", "propertyId": "prop-atx-001", "date": "2025-09-30", "category": "cleaning", "description": "Turnover cleaning", "amount": 300, "type": "expense" },
+  { "id": "acc-013", "propertyId": "prop-atx-001", "date": "2025-09-30", "category": "utilities", "description": "September utilities", "amount": 310, "type": "expense" },
+  { "id": "acc-014", "propertyId": "prop-atx-001", "date": "2025-09-30", "category": "maintenance", "description": "HVAC filter replacement", "amount": 180, "type": "expense" },
+  { "id": "acc-015", "propertyId": "prop-atx-001", "date": "2025-09-30", "category": "management", "description": "Property management fee (15%)", "amount": 297, "type": "expense" },
+
+  { "id": "acc-016", "propertyId": "prop-atx-001", "date": "2025-10-31", "category": "rental_income", "description": "October rental income (F1 boost)", "amount": 4190, "type": "income" },
+  { "id": "acc-017", "propertyId": "prop-atx-001", "date": "2025-10-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 300, "type": "expense" },
+  { "id": "acc-018", "propertyId": "prop-atx-001", "date": "2025-10-31", "category": "utilities", "description": "October utilities", "amount": 290, "type": "expense" },
+  { "id": "acc-019", "propertyId": "prop-atx-001", "date": "2025-10-31", "category": "management", "description": "Property management fee (15%)", "amount": 629, "type": "expense" },
+
+  { "id": "acc-020", "propertyId": "prop-atx-001", "date": "2025-11-30", "category": "rental_income", "description": "November rental income", "amount": 2220, "type": "income" },
+  { "id": "acc-021", "propertyId": "prop-atx-001", "date": "2025-11-30", "category": "cleaning", "description": "Turnover cleaning", "amount": 300, "type": "expense" },
+  { "id": "acc-022", "propertyId": "prop-atx-001", "date": "2025-11-30", "category": "utilities", "description": "November utilities", "amount": 280, "type": "expense" },
+  { "id": "acc-023", "propertyId": "prop-atx-001", "date": "2025-11-30", "category": "supplies", "description": "Guest supplies", "amount": 110, "type": "expense" },
+  { "id": "acc-024", "propertyId": "prop-atx-001", "date": "2025-11-30", "category": "management", "description": "Property management fee (15%)", "amount": 333, "type": "expense" },
+
+  { "id": "acc-025", "propertyId": "prop-atx-001", "date": "2025-12-31", "category": "rental_income", "description": "December rental income (holiday)", "amount": 4330, "type": "income" },
+  { "id": "acc-026", "propertyId": "prop-atx-001", "date": "2025-12-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 300, "type": "expense" },
+  { "id": "acc-027", "propertyId": "prop-atx-001", "date": "2025-12-31", "category": "utilities", "description": "December utilities", "amount": 320, "type": "expense" },
+  { "id": "acc-028", "propertyId": "prop-atx-001", "date": "2025-12-31", "category": "insurance", "description": "H2 insurance premium", "amount": 1050, "type": "expense" },
+  { "id": "acc-029", "propertyId": "prop-atx-001", "date": "2025-12-31", "category": "management", "description": "Property management fee (15%)", "amount": 650, "type": "expense" },
+
+  { "id": "acc-030", "propertyId": "prop-bna-001", "date": "2025-07-31", "category": "rental_income", "description": "July rental income", "amount": 3390, "type": "income" },
+  { "id": "acc-031", "propertyId": "prop-bna-001", "date": "2025-07-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-032", "propertyId": "prop-bna-001", "date": "2025-07-31", "category": "utilities", "description": "July utilities", "amount": 360, "type": "expense" },
+  { "id": "acc-033", "propertyId": "prop-bna-001", "date": "2025-07-31", "category": "management", "description": "Property management fee (15%)", "amount": 509, "type": "expense" },
+
+  { "id": "acc-034", "propertyId": "prop-bna-001", "date": "2025-08-31", "category": "rental_income", "description": "August rental income", "amount": 3070, "type": "income" },
+  { "id": "acc-035", "propertyId": "prop-bna-001", "date": "2025-08-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-036", "propertyId": "prop-bna-001", "date": "2025-08-31", "category": "utilities", "description": "August utilities", "amount": 370, "type": "expense" },
+  { "id": "acc-037", "propertyId": "prop-bna-001", "date": "2025-08-31", "category": "management", "description": "Property management fee (15%)", "amount": 461, "type": "expense" },
+
+  { "id": "acc-038", "propertyId": "prop-bna-001", "date": "2025-09-30", "category": "rental_income", "description": "September rental income", "amount": 2240, "type": "income" },
+  { "id": "acc-039", "propertyId": "prop-bna-001", "date": "2025-09-30", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-040", "propertyId": "prop-bna-001", "date": "2025-09-30", "category": "utilities", "description": "September utilities", "amount": 310, "type": "expense" },
+  { "id": "acc-041", "propertyId": "prop-bna-001", "date": "2025-09-30", "category": "maintenance", "description": "Plumbing repair", "amount": 420, "type": "expense" },
+  { "id": "acc-042", "propertyId": "prop-bna-001", "date": "2025-09-30", "category": "management", "description": "Property management fee (15%)", "amount": 336, "type": "expense" },
+
+  { "id": "acc-043", "propertyId": "prop-bna-001", "date": "2025-10-31", "category": "rental_income", "description": "October rental income", "amount": 4690, "type": "income" },
+  { "id": "acc-044", "propertyId": "prop-bna-001", "date": "2025-10-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-045", "propertyId": "prop-bna-001", "date": "2025-10-31", "category": "utilities", "description": "October utilities", "amount": 300, "type": "expense" },
+  { "id": "acc-046", "propertyId": "prop-bna-001", "date": "2025-10-31", "category": "management", "description": "Property management fee (15%)", "amount": 704, "type": "expense" },
+
+  { "id": "acc-047", "propertyId": "prop-bna-001", "date": "2025-11-30", "category": "rental_income", "description": "November rental income", "amount": 3080, "type": "income" },
+  { "id": "acc-048", "propertyId": "prop-bna-001", "date": "2025-11-30", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-049", "propertyId": "prop-bna-001", "date": "2025-11-30", "category": "utilities", "description": "November utilities", "amount": 290, "type": "expense" },
+  { "id": "acc-050", "propertyId": "prop-bna-001", "date": "2025-11-30", "category": "management", "description": "Property management fee (15%)", "amount": 462, "type": "expense" },
+
+  { "id": "acc-051", "propertyId": "prop-bna-001", "date": "2025-12-31", "category": "rental_income", "description": "December rental income (holiday)", "amount": 4950, "type": "income" },
+  { "id": "acc-052", "propertyId": "prop-bna-001", "date": "2025-12-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-053", "propertyId": "prop-bna-001", "date": "2025-12-31", "category": "utilities", "description": "December utilities", "amount": 330, "type": "expense" },
+  { "id": "acc-054", "propertyId": "prop-bna-001", "date": "2025-12-31", "category": "insurance", "description": "H2 insurance premium", "amount": 1200, "type": "expense" },
+  { "id": "acc-055", "propertyId": "prop-bna-001", "date": "2025-12-31", "category": "management", "description": "Property management fee (15%)", "amount": 743, "type": "expense" },
+
+  { "id": "acc-056", "propertyId": "prop-scf-001", "date": "2025-07-31", "category": "rental_income", "description": "July rental income (low season)", "amount": 1960, "type": "income" },
+  { "id": "acc-057", "propertyId": "prop-scf-001", "date": "2025-07-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-058", "propertyId": "prop-scf-001", "date": "2025-07-31", "category": "utilities", "description": "July utilities (high AC)", "amount": 480, "type": "expense" },
+  { "id": "acc-059", "propertyId": "prop-scf-001", "date": "2025-07-31", "category": "management", "description": "Property management fee (15%)", "amount": 294, "type": "expense" },
+
+  { "id": "acc-060", "propertyId": "prop-scf-001", "date": "2025-08-31", "category": "rental_income", "description": "August rental income (low season)", "amount": 1890, "type": "income" },
+  { "id": "acc-061", "propertyId": "prop-scf-001", "date": "2025-08-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-062", "propertyId": "prop-scf-001", "date": "2025-08-31", "category": "utilities", "description": "August utilities (high AC)", "amount": 510, "type": "expense" },
+  { "id": "acc-063", "propertyId": "prop-scf-001", "date": "2025-08-31", "category": "management", "description": "Property management fee (15%)", "amount": 284, "type": "expense" },
+
+  { "id": "acc-064", "propertyId": "prop-scf-001", "date": "2025-09-30", "category": "rental_income", "description": "September rental income", "amount": 2830, "type": "income" },
+  { "id": "acc-065", "propertyId": "prop-scf-001", "date": "2025-09-30", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-066", "propertyId": "prop-scf-001", "date": "2025-09-30", "category": "utilities", "description": "September utilities", "amount": 400, "type": "expense" },
+  { "id": "acc-067", "propertyId": "prop-scf-001", "date": "2025-09-30", "category": "management", "description": "Property management fee (15%)", "amount": 425, "type": "expense" },
+
+  { "id": "acc-068", "propertyId": "prop-scf-001", "date": "2025-10-31", "category": "rental_income", "description": "October rental income (peak)", "amount": 4800, "type": "income" },
+  { "id": "acc-069", "propertyId": "prop-scf-001", "date": "2025-10-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-070", "propertyId": "prop-scf-001", "date": "2025-10-31", "category": "utilities", "description": "October utilities", "amount": 350, "type": "expense" },
+  { "id": "acc-071", "propertyId": "prop-scf-001", "date": "2025-10-31", "category": "management", "description": "Property management fee (15%)", "amount": 720, "type": "expense" },
+  { "id": "acc-072", "propertyId": "prop-scf-001", "date": "2025-10-31", "category": "maintenance", "description": "Pool cleaning service", "amount": 250, "type": "expense" },
+
+  { "id": "acc-073", "propertyId": "prop-scf-001", "date": "2025-11-30", "category": "rental_income", "description": "November rental income (high season)", "amount": 5610, "type": "income" },
+  { "id": "acc-074", "propertyId": "prop-scf-001", "date": "2025-11-30", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-075", "propertyId": "prop-scf-001", "date": "2025-11-30", "category": "utilities", "description": "November utilities", "amount": 310, "type": "expense" },
+  { "id": "acc-076", "propertyId": "prop-scf-001", "date": "2025-11-30", "category": "management", "description": "Property management fee (15%)", "amount": 842, "type": "expense" },
+
+  { "id": "acc-077", "propertyId": "prop-scf-001", "date": "2025-12-31", "category": "rental_income", "description": "December rental income", "amount": 5370, "type": "income" },
+  { "id": "acc-078", "propertyId": "prop-scf-001", "date": "2025-12-31", "category": "cleaning", "description": "Turnover cleaning", "amount": 350, "type": "expense" },
+  { "id": "acc-079", "propertyId": "prop-scf-001", "date": "2025-12-31", "category": "utilities", "description": "December utilities", "amount": 340, "type": "expense" },
+  { "id": "acc-080", "propertyId": "prop-scf-001", "date": "2025-12-31", "category": "insurance", "description": "H2 insurance premium", "amount": 1100, "type": "expense" },
+  { "id": "acc-081", "propertyId": "prop-scf-001", "date": "2025-12-31", "category": "management", "description": "Property management fee (15%)", "amount": 806, "type": "expense" }
+]

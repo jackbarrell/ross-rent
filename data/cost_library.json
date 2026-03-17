@@ -1,0 +1,19 @@
+{
+  "kitchen_full": { "label": "Full Kitchen Remodel", "lowPerUnit": 12000, "highPerUnit": 28000, "unit": "per kitchen", "timelineDays": 21 },
+  "kitchen_cosmetic": { "label": "Kitchen Cosmetic Update", "lowPerUnit": 4000, "highPerUnit": 10000, "unit": "per kitchen", "timelineDays": 7 },
+  "bathroom_full": { "label": "Full Bathroom Remodel", "lowPerUnit": 6000, "highPerUnit": 18000, "unit": "per bathroom", "timelineDays": 14 },
+  "bathroom_cosmetic": { "label": "Bathroom Cosmetic Update", "lowPerUnit": 2000, "highPerUnit": 6000, "unit": "per bathroom", "timelineDays": 5 },
+  "flooring_lvp": { "label": "Luxury Vinyl Plank Flooring", "lowPerUnit": 4, "highPerUnit": 9, "unit": "per sqft", "timelineDays": 5 },
+  "flooring_hardwood": { "label": "Hardwood Flooring Refinish", "lowPerUnit": 8, "highPerUnit": 16, "unit": "per sqft", "timelineDays": 10 },
+  "painting_interior": { "label": "Interior Painting", "lowPerUnit": 2, "highPerUnit": 4, "unit": "per sqft", "timelineDays": 5 },
+  "furnishing_str": { "label": "STR Furnishing Package", "lowPerUnit": 3500, "highPerUnit": 7500, "unit": "per bedroom", "timelineDays": 3 },
+  "hvac_replace": { "label": "HVAC Replacement", "lowPerUnit": 5500, "highPerUnit": 13000, "unit": "per unit", "timelineDays": 3 },
+  "landscaping": { "label": "Landscaping & Curb Appeal", "lowPerUnit": 2500, "highPerUnit": 8000, "unit": "per property", "timelineDays": 7 },
+  "exterior_paint": { "label": "Exterior Painting", "lowPerUnit": 3500, "highPerUnit": 9000, "unit": "per property", "timelineDays": 7 },
+  "hot_tub": { "label": "Hot Tub / Spa Installation", "lowPerUnit": 4500, "highPerUnit": 12000, "unit": "per unit", "timelineDays": 5 },
+  "roofing": { "label": "Roof Repair / Replace", "lowPerUnit": 5000, "highPerUnit": 16000, "unit": "per property", "timelineDays": 10 },
+  "plumbing": { "label": "Plumbing Update", "lowPerUnit": 2000, "highPerUnit": 8000, "unit": "per property", "timelineDays": 5 },
+  "electrical": { "label": "Electrical Panel Update", "lowPerUnit": 2000, "highPerUnit": 7000, "unit": "per property", "timelineDays": 3 },
+  "deck_patio": { "label": "Deck / Patio Build", "lowPerUnit": 3000, "highPerUnit": 10000, "unit": "per property", "timelineDays": 10 },
+  "pool_resurface": { "label": "Pool Resurfacing", "lowPerUnit": 5000, "highPerUnit": 15000, "unit": "per unit", "timelineDays": 7 }
+}

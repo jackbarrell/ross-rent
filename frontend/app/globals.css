@@ -1,0 +1,807 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --text: #172032;
+  --muted: #667085;
+  --border: #d6dbe6;
+  --accent: #3557ff;
+  --accent-light: #eef2ff;
+  --green: #15803d;
+  --green-bg: #dcfce7;
+  --amber: #a16207;
+  --amber-bg: #fef9c3;
+  --red: #b42318;
+  --red-bg: #fee2e2;
+  --error: #b42318;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.pageStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #3557ff 0%, #1d3bbf 100%);
+  color: #fff;
+  border: none;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 1.6rem;
+}
+
+.hero p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.panel h2 {
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+}
+
+.panel h3 {
+  margin: 14px 0 6px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.rowBetween {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.linkCard {
+  cursor: pointer;
+}
+
+.linkCard:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(53, 87, 255, 0.12);
+  text-decoration: none;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.pill {
+  background: var(--accent-light);
+  color: #263fbf;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.cardFooter strong {
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.metricCard {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  background: #fafbfd;
+}
+
+.metricLabel {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.metricValue {
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-top: 4px;
+}
+
+/* Property detail header */
+.propertyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.propertyHeader h1 {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+}
+
+.propertyMeta {
+  color: var(--muted);
+  margin: 0 0 2px;
+}
+
+.propertySpecs {
+  margin: 0;
+  font-weight: 500;
+}
+
+.priceBlock {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.bigPrice {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* Verdict badge */
+.verdictBadge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.verdictPromising {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.verdictBorderline {
+  background: var(--amber-bg);
+  color: var(--amber);
+}
+
+.verdictCaution {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.compItem {
+  margin-bottom: 10px;
+  line-height: 1.45;
+}
+
+.label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.select {
+  width: 100%;
+  max-width: 360px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.error {
+  color: var(--error);
+}
+
+/* ─── Scenario editor ─── */
+.scenarioGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inputGroup label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.numInput {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.numInput:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.hintText {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 10px;
+}
+
+/* ─── Buttons ─── */
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.btnPrimary:hover {
+  opacity: 0.88;
+}
+
+.btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnSecondary:hover {
+  background: var(--accent-light);
+}
+
+/* ─── Cost table ─── */
+.costTable {
+  width: 100%;
+}
+
+.costTable td {
+  padding: 6px 0;
+}
+
+.totalBar {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: var(--accent-light);
+  border-radius: 8px;
+  font-size: 1.05rem;
+}
+
+/* ─── Data table ─── */
+.tableWrap {
+  overflow-x: auto;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.dataTable th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--border);
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.dataTable td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cellBold {
+  font-weight: 600;
+}
+
+.cellRight {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rowTotal {
+  font-weight: 700;
+  border-top: 2px solid var(--text);
+}
+
+.rowTotal td {
+  border-bottom: none;
+  padding-top: 10px;
+}
+
+/* ─── Toggles & details ─── */
+.toggleLink {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 4px 0;
+}
+
+.toggleLink:hover {
+  text-decoration: underline;
+}
+
+.assumptionsList {
+  background: #fafbfd;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-top: 8px;
+  font-size: 0.88rem;
+}
+
+.assumptionsGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+}
+
+.assumptionsGrid span:nth-child(odd) {
+  color: var(--muted);
+}
+
+.riskLabel {
+  margin: 10px 0 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* ─── Factor lists ─── */
+.factorList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.factorList li {
+  padding: 6px 0 6px 20px;
+  position: relative;
+  line-height: 1.45;
+}
+
+.factorList li::before {
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+
+.factorList.upside li::before {
+  content: "▲";
+  color: var(--green);
+}
+
+.factorList.downside li::before {
+  content: "▼";
+  color: var(--red);
+}
+
+.factorList.neutral li::before {
+  content: "—";
+  color: var(--muted);
+}
+
+/* ─── Description ─── */
+.descText {
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin: 10px 0 0;
+  line-height: 1.55;
+}
+
+/* ─── Pills / badges ─── */
+.pillSmall {
+  background: var(--accent-light);
+  color: #263fbf;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.scoreBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.scoreGood {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.scoreMid {
+  background: var(--amber-bg);
+  color: var(--amber);
+}
+
+.scoreLow {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+/* ─── Search & filter bar ─── */
+.searchPanel {
+  padding: 16px 20px;
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.textInput {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 0.95rem;
+  background: #fff;
+  flex: 1;
+  min-width: 160px;
+}
+
+.textInput:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.sortRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.selectSmall {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.88rem;
+  background: #fff;
+}
+
+.selectSmall:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.countLabel {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* ─── Tab buttons ─── */
+.tabBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.tabBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tabActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ─── Ranking table ─── */
+.rankTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rankTable th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.rankTable td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
+
+  .propertyHeader {
+    flex-direction: column;
+  }
+
+  .priceBlock {
+    align-items: flex-start;
+  }
+
+  .scenarioGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .searchRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tabBar {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 500px) {
+  .container {
+    padding: 12px;
+  }
+
+  .scenarioGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ─── Hero navigation ─── */
+.heroNav {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.heroLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.heroLink:hover {
+  background: rgba(255, 255, 255, 0.32);
+  text-decoration: none;
+}
+
+/* ─── Sort label ─── */
+.sortLabel {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ─── Tab bar (horizontal scrolling) ─── */
+.tabBar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabBar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabBar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+/* ─── Panel stack ─── */
+.panelStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── Card selected ─── */
+.cardSelected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(53, 87, 255, 0.25);
+}
+
+/* ─── Pill green (renovated badge) ─── */
+.pillGreen {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+/* ─── Negative total bar ─── */
+.totalBarNeg {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+/* ─── Memo styles ─── */
+.memoSections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.memoSection {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.memoSection h3 {
+  margin: 0;
+  padding: 12px 16px;
+  background: #fafbfd;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.memoContent {
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.memoTableLine {
+  display: block;
+  font-family: "SF Mono", "Fira Code", Menlo, monospace;
+  font-size: 0.82rem;
+  padding: 2px 0;
+}
+
+.markdownPre {
+  background: #fafbfd;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  font-family: "SF Mono", "Fira Code", Menlo, monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
