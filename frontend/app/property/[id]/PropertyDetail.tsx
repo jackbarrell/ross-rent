@@ -145,11 +145,16 @@ export function PropertyDetail({ id }: { id: string }) {
         <Link href="/" className="backLink">← Back to property list</Link>
 
         {/* ─── Property Header ─── */}
-        {property.imageUrl && (
-          <div className="propertyHeroImage">
+        <div className="propertyHeroImage">
+          {property.imageUrl ? (
             <img src={property.imageUrl} alt={property.address} />
-          </div>
-        )}
+          ) : (
+            <div className="heroImageFallback">
+              <span className="heroImageFallbackIcon">⌂</span>
+              <span className="heroImageFallbackText">No image available</span>
+            </div>
+          )}
+        </div>
         <section className="panel">
           <div className="propertyHeader">
             <div>
