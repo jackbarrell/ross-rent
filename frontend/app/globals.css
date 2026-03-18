@@ -620,6 +620,38 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
 .selectSmall:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 .countLabel { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; font-weight: 500; }
 
+/* ─── Empty State ───────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+.emptyStateIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+.emptyStateTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+.emptyStateText {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  max-width: 440px;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.emptyStateBtn {
+  padding: 10px 28px;
+  font-size: 0.95rem;
+}
+
 /* ─── Tabs ──────────────────────────────────────────────── */
 .tabBtn {
   background: var(--bg-elevated);

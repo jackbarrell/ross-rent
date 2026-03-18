@@ -119,6 +119,58 @@ export const initDatabase = () => {
   return db;
 };
 
+// ─── Market Management ─────────────────────────────────────
+
+export function marketExists(city: string, state: string): boolean {
+  const db = getDb();
+  const row = db.prepare("SELECT COUNT(*) as count FROM properties WHERE LOWER(city) = LOWER(?) AND UPPER(state) = UPPER(?)").get(city, state) as { count: number };
+  return row.count > 0;
+}
+
+export function insertProperties(properties: PropertyListing[]): void {
+  const db = getDb();
+  const stmt = db.prepare(`
+    INSERT OR IGNORE INTO properties (
+      id, address, city, state, zip, bedrooms, bathrooms, sqft, listPrice,
+      propertyType, daysOnMarket, lat, lng, imageUrl, description
+    ) VALUES (
+      @id, @address, @city, @state, @zip, @bedrooms, @bathrooms, @sqft, @listPrice,
+      @propertyType, @daysOnMarket, @lat, @lng, @imageUrl, @description
+    )
+  `);
+  const tx = db.transaction((rows: PropertyListing[]) => {
+    for (const row of rows) {
+      stmt.run({ ...row, imageUrl: row.imageUrl ?? null, description: row.description ?? null });
+    }
+  });
+  tx(properties);
+}
+
+export function insertRentalComps(comps: RentalComparable[]): void {
+  const db = getDb();
+  const stmt = db.prepare(`
+    INSERT OR IGNORE INTO rental_comps (
+      id, locationKey, source, name, bedrooms, bathrooms, adr,
+      occupancyRate, reviews, distanceMiles, propertyType
+    ) VALUES (
+      @id, @locationKey, @source, @name, @bedrooms, @bathrooms, @adr,
+      @occupancyRate, @reviews, @distanceMiles, @propertyType
+    )
+  `);
+  const tx = db.transaction((rows: RentalComparable[]) => {
+    for (const row of rows) stmt.run(row);
+  });
+  tx(comps);
+}
+
+export function removeMarket(city: string, state: string): number {
+  const db = getDb();
+  const result = db.prepare("DELETE FROM properties WHERE LOWER(city) = LOWER(?) AND UPPER(state) = UPPER(?)").run(city, state);
+  const locationKey = `${city},${state.toUpperCase()}`;
+  db.prepare("DELETE FROM rental_comps WHERE locationKey = ?").run(locationKey);
+  return result.changes;
+}
+
 // ─── Deal Pipeline (SQLite-persisted) ──────────────────────
 
 import { DealStatus, SavedDeal } from "../models.js";

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LocationSelector } from "@/components/LocationSelector";
 import { PropertyCard } from "@/components/PropertyCard";
 import { PropertyMap } from "@/components/PropertyMap";
-import { fetchLocations, fetchProperties, fetchRanking } from "@/lib/api";
+import { fetchLocations, fetchProperties, fetchRanking, addMarket } from "@/lib/api";
 import { PropertyListing, RankedProperty } from "@/lib/types";
 import Link from "next/link";
 
@@ -20,6 +20,8 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>("price-asc");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [addingMarket, setAddingMarket] = useState(false);
+  const [addMarketError, setAddMarketError] = useState<string | null>(null);
 
   useEffect(() => {
     const run = async () => {
@@ -56,6 +58,31 @@ export default function HomePage() {
     loadRanking();
     return () => { cancelled = true; };
   }, [viewMode, selectedLocation]);
+
+  const handleAddMarket = async () => {
+    if (!selectedLocation) return;
+    setAddingMarket(true);
+    setAddMarketError(null);
+    try {
+      // Parse "City,State" or just "City"
+      const parts = selectedLocation.split(",").map(s => s.trim());
+      const city = parts[0];
+      const state = parts[1] || undefined;
+      await addMarket(city, state);
+      // Re-fetch to show new properties
+      const [{ locations: locs }, { properties: props }] = await Promise.all([
+        fetchLocations(),
+        fetchProperties(selectedLocation)
+      ]);
+      setLocations(locs);
+      setProperties(props);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to add market";
+      setAddMarketError(msg);
+    } finally {
+      setAddingMarket(false);
+    }
+  };
 
   const sortedProperties = useMemo(() => {
     const sorted = [...properties];
@@ -143,7 +170,7 @@ export default function HomePage() {
         )}
         {error && <p className="error">{error}</p>}
 
-        {viewMode === "grid" && !loading && (
+        {viewMode === "grid" && !loading && sortedProperties.length > 0 && (
           <>
             <p className="countLabel">{sortedProperties.length} properties found</p>
             <div className="grid">
@@ -152,6 +179,35 @@ export default function HomePage() {
               ))}
             </div>
           </>
+        )}
+
+        {!loading && properties.length === 0 && selectedLocation && (
+          <div className="emptyState">
+            <div className="emptyStateIcon">🏘️</div>
+            <h3 className="emptyStateTitle">No properties in &ldquo;{selectedLocation}&rdquo;</h3>
+            <p className="emptyStateText">
+              This market isn&apos;t being monitored yet. Add it to generate properties and rental
+              comps so the AI engine can start analysing investment opportunities.
+            </p>
+            {addMarketError && <p className="error" style={{ marginBottom: 12 }}>{addMarketError}</p>}
+            <button
+              className="btnPrimary emptyStateBtn"
+              onClick={handleAddMarket}
+              disabled={addingMarket}
+            >
+              {addingMarket ? "Adding market…" : `Add ${selectedLocation} to watchlist`}
+            </button>
+          </div>
+        )}
+
+        {!loading && properties.length === 0 && !selectedLocation && !error && (
+          <div className="emptyState">
+            <div className="emptyStateIcon">🔍</div>
+            <h3 className="emptyStateTitle">Search for a market</h3>
+            <p className="emptyStateText">
+              Use the search bar above or select a location from the dropdown to view properties.
+            </p>
+          </div>
         )}
 
         {viewMode === "ranking" && !loading && (

@@ -45,7 +45,8 @@ const postJson = async <T>(path: string, body: unknown): Promise<T> => {
     cache: "no-store"
   });
   if (!res.ok) {
-    throw new Error(`API request failed: ${path}`);
+    const errBody = await res.json().catch(() => null);
+    throw new Error(errBody?.message ?? `API request failed: ${path}`);
   }
   return (await res.json()) as T;
 };
@@ -81,6 +82,13 @@ export const fetchAnalysisWithOverrides = async (
 export const fetchRanking = async (location: string) => {
   const query = location ? `?location=${encodeURIComponent(location)}` : "";
   return getJson<{ ranked: RankedProperty[] }>(`/api/ranking${query}`);
+};
+
+export const addMarket = async (city: string, state?: string) => {
+  return postJson<{ market: string; properties: PropertyListing[]; rentalComps: number }>(
+    "/api/markets",
+    { city, state }
+  );
 };
 
 export const fetchMacroData = async (locationKey: string) => {
