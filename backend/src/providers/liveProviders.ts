@@ -1,6 +1,6 @@
 import { AnalysisAssumptions, PropertyListing, RentalComparable } from "../models.js";
 import { ListingDataProvider, ShortTermRentalDataProvider } from "./interfaces.js";
-import { cachedFetch, TTL } from "./cache.js";
+import { cachedFetch, cacheGet, TTL } from "./cache.js";
 
 // ─── Shared helpers ────────────────────────────────────────
 
@@ -117,9 +117,13 @@ export class LiveListingProvider implements ListingDataProvider {
 
   async getPropertyById(id: string): Promise<PropertyListing | null> {
     // Search cached locations first
-    for (const [, entry] of this.cache) {
-      const found = entry.data.find((p) => p.id === id);
-      if (found) return found;
+    const locations = await this.getLocations();
+    for (const loc of locations) {
+      const cached = cacheGet<PropertyListing[]>("rentcast", loc);
+      if (cached) {
+        const found = cached.find((p: PropertyListing) => p.id === id);
+        if (found) return found;
+      }
     }
 
     // Try RentCast property detail endpoint
