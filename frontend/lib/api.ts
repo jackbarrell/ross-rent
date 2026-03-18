@@ -1,23 +1,30 @@
 import {
   AnalysisAssumptions,
+  BreakEvenAnalysis,
   CompanyPL,
   ComparisonRow,
   CostLibraryItem,
+  DealScoreCard,
   DealStatus,
   FinancialModel,
   ForecastVsActual,
   InvestmentAnalysis,
   InvestmentMemo,
   MacroData,
+  MarketAnalytics,
+  MonteCarloResult,
   OperationsSnapshot,
+  PortfolioRiskMetrics,
   PortfolioSummary,
   PropertyListing,
   PropertyPL,
   RankedProperty,
   RenovationEstimate,
   SavedDeal,
+  SensitivityHeatmap,
   SensitivityResult,
   ValuationResult,
+  WaterfallAnalysis,
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
@@ -166,4 +173,50 @@ export const applyForecastCalibration = async (propertyId: string) => {
     `/api/forecast-vs-actual/${propertyId}/apply`,
     {}
   );
+};
+
+// ─── Monte Carlo ───────────────────────────────────────────
+
+export const fetchMonteCarlo = async (propertyId: string) => {
+  return getJson<MonteCarloResult>(`/api/monte-carlo/${propertyId}`);
+};
+
+// ─── Deal Score Card ───────────────────────────────────────
+
+export const fetchDealScore = async (propertyId: string) => {
+  return getJson<DealScoreCard>(`/api/deal-score/${propertyId}`);
+};
+
+// ─── Break-Even Analysis ───────────────────────────────────
+
+export const fetchBreakEven = async (propertyId: string) => {
+  return getJson<BreakEvenAnalysis>(`/api/break-even/${propertyId}`);
+};
+
+// ─── Waterfall Analysis ────────────────────────────────────
+
+export const fetchWaterfall = async (propertyId: string) => {
+  return getJson<WaterfallAnalysis>(`/api/waterfall/${propertyId}`);
+};
+
+// ─── Market Analytics ──────────────────────────────────────
+
+export const fetchMarketAnalytics = async (locationKey: string) => {
+  return getJson<MarketAnalytics>(`/api/market-analytics/${encodeURIComponent(locationKey)}`);
+};
+
+export const fetchAllMarketAnalytics = async () => {
+  return getJson<{ markets: MarketAnalytics[] }>("/api/market-analytics");
+};
+
+// ─── Portfolio Risk ────────────────────────────────────────
+
+export const fetchPortfolioRisk = async () => {
+  return getJson<PortfolioRiskMetrics>("/api/portfolio-risk");
+};
+
+// ─── Sensitivity Heatmap ───────────────────────────────────
+
+export const fetchHeatmap = async (propertyId: string) => {
+  return getJson<SensitivityHeatmap>(`/api/heatmap/${propertyId}`);
 };

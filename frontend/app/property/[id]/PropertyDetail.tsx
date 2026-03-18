@@ -12,24 +12,32 @@ import { OperationsPanel } from "@/components/OperationsPanel";
 import { ForecastPanel } from "@/components/ForecastPanel";
 import { SensitivityPanel } from "@/components/SensitivityPanel";
 import { RevenueChart } from "@/components/RevenueChart";
+import { MonteCarloPanel } from "@/components/MonteCarloPanel";
+import { DealScorePanel } from "@/components/DealScorePanel";
+import { HeatmapPanel } from "@/components/HeatmapPanel";
+import { WaterfallPanel } from "@/components/WaterfallPanel";
 import { fetchAnalysis, fetchAnalysisWithOverrides, saveDeal, fetchDeals } from "@/lib/api";
 import { AnalysisAssumptions, DealStatus, InvestmentAnalysis, PropertyListing } from "@/lib/types";
 
 function fmt$(n: number) { return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 }); }
 function fmtPct(n: number) { return (n * 100).toFixed(1) + "%"; }
 
-type Tab = "market" | "macro" | "renovation" | "valuation" | "financials" | "sensitivity" | "memo" | "operations" | "forecast";
+type Tab = "market" | "macro" | "renovation" | "valuation" | "financials" | "waterfall" | "sensitivity" | "heatmap" | "montecarlo" | "dealscore" | "memo" | "operations" | "forecast";
 
 const TABS: { key: Tab; label: string; ai?: boolean }[] = [
   { key: "market", label: "STR Market" },
+  { key: "dealscore", label: "Deal Score", ai: true },
   { key: "macro", label: "Macro Data" },
   { key: "renovation", label: "Renovation", ai: true },
   { key: "valuation", label: "Valuation" },
   { key: "financials", label: "Financials" },
+  { key: "waterfall", label: "Waterfall" },
   { key: "sensitivity", label: "Sensitivity" },
+  { key: "heatmap", label: "Heatmap" },
+  { key: "montecarlo", label: "Monte Carlo", ai: true },
   { key: "memo", label: "Memo", ai: true },
   { key: "operations", label: "Operations" },
-  { key: "forecast", label: "Forecast vs Actual", ai: true },
+  { key: "forecast", label: "Forecast", ai: true },
 ];
 
 export function PropertyDetail({ id }: { id: string }) {
@@ -349,6 +357,30 @@ export function PropertyDetail({ id }: { id: string }) {
         {activeTab === "forecast" && (
           <section className="panel">
             <ForecastPanel propertyId={id} />
+          </section>
+        )}
+
+        {activeTab === "montecarlo" && (
+          <section className="panel">
+            <MonteCarloPanel propertyId={id} />
+          </section>
+        )}
+
+        {activeTab === "dealscore" && (
+          <section className="panel">
+            <DealScorePanel propertyId={id} />
+          </section>
+        )}
+
+        {activeTab === "heatmap" && (
+          <section className="panel">
+            <HeatmapPanel propertyId={id} />
+          </section>
+        )}
+
+        {activeTab === "waterfall" && (
+          <section className="panel">
+            <WaterfallPanel propertyId={id} />
           </section>
         )}
     </div>

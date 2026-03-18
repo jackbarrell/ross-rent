@@ -11,6 +11,7 @@ export function NavBar() {
     { href: "/compare", label: "Compare", icon: "⇌" },
     { href: "/pipeline", label: "Pipeline", icon: "◇" },
     { href: "/portfolio", label: "Portfolio", icon: "◈" },
+    { href: "/markets", label: "Markets", icon: "◎" },
     { href: "/forecast", label: "Forecast", icon: "◆" },
     { href: "/about", label: "About", icon: "◉" },
   ];

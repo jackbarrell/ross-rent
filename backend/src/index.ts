@@ -55,7 +55,7 @@ app.use("/api/analysis", analysisRouter);
 
 // Data routes: macro, renovation, valuation, financial-model, memo, sensitivity, operations,
 // accounting, forecast, deals, compare — all mounted at /api
-const dataRouter = createDataRouter(listingProvider, runAnalysis, useMockData);
+const dataRouter = createDataRouter(listingProvider, strProvider, analysisEngine, runAnalysis, useMockData);
 app.use("/api", dataRouter);
 
 // ─── Serve frontend static build in production ────────────

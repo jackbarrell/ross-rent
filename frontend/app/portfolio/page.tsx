@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { fetchPortfolio, fetchCompanyAccounting } from "@/lib/api";
-import { CompanyPL, PortfolioSummary } from "@/lib/types";
+import { fetchPortfolio, fetchCompanyAccounting, fetchPortfolioRisk } from "@/lib/api";
+import { CompanyPL, PortfolioSummary, PortfolioRiskMetrics } from "@/lib/types";
 import { MetricCard } from "@/components/MetricCard";
 
 function fmt$(n: number) { return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 }); }
@@ -12,15 +12,17 @@ function fmtPct(n: number) { return (n * 100).toFixed(1) + "%"; }
 export default function PortfolioPage() {
   const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(null);
   const [accounting, setAccounting] = useState<CompanyPL | null>(null);
+  const [risk, setRisk] = useState<PortfolioRiskMetrics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"portfolio" | "accounting">("portfolio");
+  const [tab, setTab] = useState<"portfolio" | "risk" | "accounting">("portfolio");
 
   useEffect(() => {
     Promise.all([
       fetchPortfolio(),
       fetchCompanyAccounting(),
+      fetchPortfolioRisk(),
     ])
-      .then(([p, a]) => { setPortfolio(p); setAccounting(a); })
+      .then(([p, a, r]) => { setPortfolio(p); setAccounting(a); setRisk(r); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -43,6 +45,12 @@ export default function PortfolioPage() {
             onClick={() => setTab("portfolio")}
           >
             Portfolio View
+          </button>
+          <button
+            className={`tabBtn ${tab === "risk" ? "tabActive" : ""}`}
+            onClick={() => setTab("risk")}
+          >
+            Risk Analytics
           </button>
           <button
             className={`tabBtn ${tab === "accounting" ? "tabActive" : ""}`}
@@ -115,6 +123,89 @@ export default function PortfolioPage() {
               </table>
             </div>
           </section>
+        </>
+      )}
+
+      {tab === "risk" && risk && (
+        <>
+          <section className="hero">
+            <h1>Portfolio Risk Analytics</h1>
+            <p>Diversification, concentration risk, and return attribution</p>
+          </section>
+
+          <section className="panel">
+            <div className="metricsGrid">
+              <MetricCard label="Diversification Score" value={`${risk.diversificationScore}/100`} />
+              <MetricCard label="Risk Rating" value={risk.riskRating} />
+              <MetricCard label="Wtd Avg Yield" value={fmtPct(risk.weightedAvgYield)} />
+              <MetricCard label="Wtd Avg IRR" value={fmtPct(risk.weightedAvgIrr)} />
+              <MetricCard label="Volatility (σ)" value={fmtPct(risk.portfolioVolatility)} />
+              <MetricCard label="Properties" value={String(risk.totalProperties)} />
+            </div>
+          </section>
+
+          <section className="panel">
+            <h2>Concentration Risk</h2>
+            <div className="twoCol">
+              <div>
+                <table className="dataTable">
+                  <tbody>
+                    <tr><td>Top property weight</td><td className="cellRight">{fmtPct(risk.concentrationRisk.topPropertyPct)}</td></tr>
+                    <tr><td>Top location weight</td><td className="cellRight">{fmtPct(risk.concentrationRisk.topLocationPct)}</td></tr>
+                  </tbody>
+                </table>
+                <h3 style={{ marginTop: 16 }}>By Property Type</h3>
+                <table className="dataTable">
+                  <tbody>
+                    {Object.entries(risk.concentrationRisk.propertyTypeConcentration).map(([type, pct]) => (
+                      <tr key={type}><td>{type}</td><td className="cellRight">{fmtPct(pct as number)}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <h3>By Location</h3>
+                <table className="dataTable">
+                  <tbody>
+                    {Object.entries(risk.concentrationRisk.locationConcentration).map(([loc, pct]) => (
+                      <tr key={loc}><td>{loc}</td><td className="cellRight">{fmtPct(pct as number)}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section className="panel">
+            <h2>Allocation Breakdown</h2>
+            <div className="allocationBar">
+              {risk.allocationBreakdown.map((s) => (
+                <div key={s.label} className="allocationSeg" style={{ width: `${s.percentage * 100}%`, background: s.color }} title={`${s.label}: ${fmtPct(s.percentage)}`} />
+              ))}
+            </div>
+            <div className="allocationLegend">
+              {risk.allocationBreakdown.map((s) => (
+                <span key={s.label} className="allocationLegendItem">
+                  <span className="allocationLegendDot" style={{ background: s.color }} />
+                  {s.label} — {fmtPct(s.percentage)} ({fmt$(s.value)})
+                </span>
+              ))}
+            </div>
+          </section>
+
+          {risk.riskFactors.length > 0 && (
+            <section className="panel">
+              <h2>Risk Factors</h2>
+              <div className="riskFactorsList">
+                {risk.riskFactors.map((f, i) => (
+                  <div key={i} className="riskFactorItem riskFactorMedium">
+                    <span className="riskFactorSeverity">Risk</span>
+                    <span className="riskFactorDesc">{f}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </>
       )}
 

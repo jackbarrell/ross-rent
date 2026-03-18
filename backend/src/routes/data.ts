@@ -10,8 +10,14 @@ import { getPropertyPL, getCompanyPL } from "../providers/accountingProvider.js"
 import { compareForecastVsActual } from "../providers/forecastEngine.js";
 import { getAllDeals, upsertDeal, deleteDeal } from "../db/sqlite.js";
 import { DealStatus } from "../models.js";
-import { generateFinancialModel } from "../providers/financialModelEngine.js";
+import { generateFinancialModel, FinancialModelConfig } from "../providers/financialModelEngine.js";
 import { generateInvestmentMemo } from "../ai/memoGenerator.js";
+import { runMonteCarlo } from "../analysis/monteCarloEngine.js";
+import { generateDealScoreCard } from "../analysis/dealScoring.js";
+import { calculateBreakEven, calculateMarketAnalytics, generateSensitivityHeatmap } from "../analysis/marketAnalytics.js";
+import { calculatePortfolioRisk, generateWaterfall } from "../analysis/portfolioRisk.js";
+import { ShortTermRentalDataProvider } from "../providers/interfaces.js";
+import { AnalysisEngine } from "../analysis/analysisEngine.js";
 
 type RunAnalysisFn = (
   propertyId: string,
@@ -21,6 +27,8 @@ type RunAnalysisFn = (
 
 export function createDataRouter(
   listingProvider: ListingDataProvider,
+  strProvider: ShortTermRentalDataProvider,
+  analysisEngine: AnalysisEngine,
   runAnalysis: RunAnalysisFn,
   useMockData: boolean,
 ) {
@@ -335,6 +343,159 @@ export function createDataRouter(
         }),
       );
       res.json({ comparisons: rows.filter(Boolean) });
+    } catch (error) { next(error); }
+  });
+
+  // ─── Monte Carlo Simulation ────────────────────────────────
+  router.get("/monte-carlo/:propertyId", async (req, res, next) => {
+    try {
+      const result = await runAnalysis(req.params.propertyId);
+      if (!result) { res.status(404).json({ message: "Property not found" }); return; }
+      const { property, analysis } = result;
+      const locationKey = `${property.city},${property.state}`;
+      const macro = getMacroData(locationKey);
+      const renovation = inferRenovation(property);
+      const mc = runMonteCarlo(property, analysis, renovation.totalCapexEstimate, macro);
+      res.json(mc);
+    } catch (error) { next(error); }
+  });
+
+  // ─── Deal Score Card ────────────────────────────────────────
+  router.get("/deal-score/:propertyId", async (req, res, next) => {
+    try {
+      const result = await runAnalysis(req.params.propertyId);
+      if (!result) { res.status(404).json({ message: "Property not found" }); return; }
+      const { property, analysis } = result;
+      const locationKey = `${property.city},${property.state}`;
+      const macro = getMacroData(locationKey);
+      const renovation = inferRenovation(property);
+      const extraSales = useMockData ? undefined : await fetchLiveComparableSales(property);
+      const valuation = estimatePostRenovationValue(property, renovation.totalCapexEstimate, extraSales);
+      const model = generateFinancialModel(property, analysis, renovation.totalCapexEstimate, macro);
+      const scoreCard = generateDealScoreCard(analysis, macro, model, valuation, renovation);
+      res.json(scoreCard);
+    } catch (error) { next(error); }
+  });
+
+  // ─── Break-Even Analysis ───────────────────────────────────
+  router.get("/break-even/:propertyId", async (req, res, next) => {
+    try {
+      const result = await runAnalysis(req.params.propertyId);
+      if (!result) { res.status(404).json({ message: "Property not found" }); return; }
+      const { property, analysis } = result;
+      const locationKey = `${property.city},${property.state}`;
+      const macro = getMacroData(locationKey);
+      const renovation = inferRenovation(property);
+      const model = generateFinancialModel(property, analysis, renovation.totalCapexEstimate, macro);
+      const breakEven = calculateBreakEven(property, analysis, model);
+      res.json(breakEven);
+    } catch (error) { next(error); }
+  });
+
+  // ─── Waterfall Analysis ────────────────────────────────────
+  router.get("/waterfall/:propertyId", async (req, res, next) => {
+    try {
+      const result = await runAnalysis(req.params.propertyId);
+      if (!result) { res.status(404).json({ message: "Property not found" }); return; }
+      const { property, analysis } = result;
+      const locationKey = `${property.city},${property.state}`;
+      const macro = getMacroData(locationKey);
+      const renovation = inferRenovation(property);
+      const model = generateFinancialModel(property, analysis, renovation.totalCapexEstimate, macro);
+      const waterfall = generateWaterfall(property, model);
+      res.json(waterfall);
+    } catch (error) { next(error); }
+  });
+
+  // ─── Market Analytics ──────────────────────────────────────
+  router.get("/market-analytics/:locationKey", async (req, res, next) => {
+    try {
+      const locationKey = decodeURIComponent(req.params.locationKey);
+      const properties = await listingProvider.searchProperties(locationKey);
+      const analyses = await Promise.all(
+        properties.map(async (property) => {
+          const result = await runAnalysis(property.id);
+          return result;
+        }),
+      );
+      const validAnalyses = analyses.filter(Boolean) as Array<{ property: PropertyListing; analysis: InvestmentAnalysis }>;
+      const macro = getMacroData(locationKey);
+      const analytics = calculateMarketAnalytics(locationKey, properties, validAnalyses, macro);
+      res.json(analytics);
+    } catch (error) { next(error); }
+  });
+
+  // ─── All Markets Analytics ─────────────────────────────────
+  router.get("/market-analytics", async (_req, res, next) => {
+    try {
+      const locations = await listingProvider.getLocations();
+      const results = await Promise.all(
+        locations.map(async (locationKey) => {
+          const properties = await listingProvider.searchProperties(locationKey);
+          const analyses = await Promise.all(
+            properties.map(async (p) => runAnalysis(p.id)),
+          );
+          const valid = analyses.filter(Boolean) as Array<{ property: PropertyListing; analysis: InvestmentAnalysis }>;
+          const macro = getMacroData(locationKey);
+          return calculateMarketAnalytics(locationKey, properties, valid, macro);
+        }),
+      );
+      res.json({ markets: results });
+    } catch (error) { next(error); }
+  });
+
+  // ─── Portfolio Risk ────────────────────────────────────────
+  router.get("/portfolio-risk", async (_req, res, next) => {
+    try {
+      const properties = await listingProvider.searchProperties("");
+      const analyses: InvestmentAnalysis[] = [];
+      const models: import("../models.js").FinancialModel[] = [];
+      const propsOut: PropertyListing[] = [];
+
+      await Promise.all(
+        properties.map(async (property) => {
+          const result = await runAnalysis(property.id);
+          if (!result) return;
+          const locationKey = `${property.city},${property.state}`;
+          const macro = getMacroData(locationKey);
+          const renovation = inferRenovation(property);
+          const model = generateFinancialModel(property, result.analysis, renovation.totalCapexEstimate, macro);
+          propsOut.push(property);
+          analyses.push(result.analysis);
+          models.push(model);
+        }),
+      );
+
+      const risk = calculatePortfolioRisk(propsOut, analyses, models);
+      res.json(risk);
+    } catch (error) { next(error); }
+  });
+
+  // ─── Sensitivity Heatmap (2D) ──────────────────────────────
+  router.get("/heatmap/:propertyId", async (req, res, next) => {
+    try {
+      const result = await runAnalysis(req.params.propertyId);
+      if (!result) { res.status(404).json({ message: "Property not found" }); return; }
+      const { property, analysis } = result;
+      const locationKey = `${property.city},${property.state}`;
+      const macro = getMacroData(locationKey);
+      const renovation = inferRenovation(property);
+      const renovationCost = renovation.totalCapexEstimate;
+
+      const heatmap = generateSensitivityHeatmap(
+        property, analysis, renovationCost, macro,
+        (revOverride: number, costOverride: number) => {
+          // Build a modified analysis with overridden revenue/cost
+          const modAnalysis = {
+            ...analysis,
+            estimatedAnnualGrossRevenue: revOverride,
+            estimatedOperatingCost: costOverride,
+            estimatedNetOperatingIncome: revOverride - costOverride,
+          };
+          return generateFinancialModel(property, modAnalysis, renovationCost, macro);
+        },
+      );
+      res.json(heatmap);
     } catch (error) { next(error); }
   });
 

@@ -421,3 +421,174 @@ export interface SensitivityResult {
     cashOnCash: number;
   }>;
 }
+
+// ─── Monte Carlo ───────────────────────────────────────────
+
+export interface DistributionStats {
+  mean: number;
+  median: number;
+  stdDev: number;
+  p5: number;
+  p25: number;
+  p75: number;
+  p95: number;
+  min: number;
+  max: number;
+}
+
+export interface PercentileData {
+  percentile: number;
+  irr: number;
+  totalReturn: number;
+  equity: number;
+}
+
+export interface HistogramBucket {
+  rangeLabel: string;
+  min: number;
+  max: number;
+  count: number;
+  frequency: number;
+}
+
+export interface MonteCarloResult {
+  propertyId: string;
+  simulations: number;
+  irr: DistributionStats;
+  cashOnCash: DistributionStats;
+  year5Equity: DistributionStats;
+  totalReturn: DistributionStats;
+  noi: DistributionStats;
+  probabilityOfLoss: number;
+  probabilityAbove10Pct: number;
+  percentiles: PercentileData[];
+  histogram: HistogramBucket[];
+}
+
+// ─── Deal Score Card ───────────────────────────────────────
+
+export type DealGrade = "A+" | "A" | "A-" | "B+" | "B" | "B-" | "C+" | "C" | "C-" | "D" | "F";
+
+export interface DealScoreBreakdown {
+  category: string;
+  score: number;
+  weight: number;
+  weighted: number;
+  details: string;
+}
+
+export interface RadarPoint {
+  axis: string;
+  value: number;
+}
+
+export interface DealScoreCard {
+  propertyId: string;
+  overallScore: number;
+  grade: DealGrade;
+  breakdown: DealScoreBreakdown[];
+  radarData: RadarPoint[];
+  strengths: string[];
+  weaknesses: string[];
+  recommendation: string;
+}
+
+// ─── Break-Even Analysis ───────────────────────────────────
+
+export interface BreakEvenAnalysis {
+  propertyId: string;
+  breakEvenOccupancy: number;
+  breakEvenAdr: number;
+  breakEvenPrice: number;
+  currentOccupancy: number;
+  currentAdr: number;
+  currentPrice: number;
+  safetyMarginOccupancy: number;
+  safetyMarginAdr: number;
+  daysToBreakEven: number;
+}
+
+// ─── Waterfall Analysis ────────────────────────────────────
+
+export interface WaterfallStep {
+  label: string;
+  value: number;
+  cumulative: number;
+  type: "positive" | "negative" | "subtotal";
+}
+
+export interface WaterfallAnalysis {
+  propertyId: string;
+  steps: WaterfallStep[];
+  totalReturn: number;
+  equityMultiple: number;
+}
+
+// ─── Market Analytics ──────────────────────────────────────
+
+export interface MarketAnalytics {
+  locationKey: string;
+  propertyCount: number;
+  avgPrice: number;
+  avgPricePerSqft: number;
+  avgBedrooms: number;
+  avgAdr: number;
+  avgOccupancy: number;
+  avgYield: number;
+  avgScore: number;
+  avgNoi: number;
+  priceRange: { min: number; max: number };
+  yieldRange: { min: number; max: number };
+  scoreDistribution: { excellent: number; good: number; fair: number; poor: number };
+  topProperties: Array<{ id: string; address: string; score: number; yield: number }>;
+  macroHighlights: string[];
+}
+
+// ─── Portfolio Risk ────────────────────────────────────────
+
+export interface AllocationSlice {
+  label: string;
+  value: number;
+  percentage: number;
+  color: string;
+}
+
+export interface ConcentrationRisk {
+  topPropertyPct: number;
+  topLocationPct: number;
+  propertyTypeConcentration: Record<string, number>;
+  locationConcentration: Record<string, number>;
+}
+
+export interface PortfolioRiskMetrics {
+  totalProperties: number;
+  totalValue: number;
+  totalEquity: number;
+  weightedAvgYield: number;
+  weightedAvgIrr: number;
+  portfolioVolatility: number;
+  concentrationRisk: ConcentrationRisk;
+  riskRating: "Low" | "Moderate" | "High" | "Very High";
+  diversificationScore: number;
+  allocationBreakdown: AllocationSlice[];
+  riskFactors: string[];
+}
+
+// ─── Sensitivity Heatmap ───────────────────────────────────
+
+export interface HeatmapCell {
+  adrMultiplier: number;
+  occupancyMultiplier: number;
+  irr: number;
+  noi: number;
+  cashflow: number;
+}
+
+export interface SensitivityHeatmap {
+  propertyId: string;
+  adrSteps: number[];
+  occupancySteps: number[];
+  cells: HeatmapCell[];
+  baseAdr: number;
+  baseOccupancy: number;
+}
