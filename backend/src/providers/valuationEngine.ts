@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ComparableSale, PropertyListing, ValuationResult } from "../models.js";
+import { cachedFetch, TTL } from "./cache.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,18 +35,13 @@ interface RentCastSale {
   condition?: string;
 }
 
-let liveSalesCache = new Map<string, { data: ComparableSale[]; ts: number }>();
-const LIVE_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
-
 export async function fetchLiveComparableSales(property: PropertyListing): Promise<ComparableSale[]> {
   const apiKey = process.env.RENTCAST_API_KEY;
   if (!apiKey) return [];
 
-  const cacheKey = `${property.city},${property.state}-${property.bedrooms}`;
-  const cached = liveSalesCache.get(cacheKey);
-  if (cached && Date.now() - cached.ts < LIVE_CACHE_TTL) return cached.data;
+  const cacheKey = `${property.city}_${property.state}_${property.bedrooms}`;
 
-  try {
+  return cachedFetch<ComparableSale[]>("rentcast-sales", cacheKey, TTL.RENTCAST, async () => {
     const params = new URLSearchParams({
       city: property.city,
       state: property.state,
@@ -59,7 +55,7 @@ export async function fetchLiveComparableSales(property: PropertyListing): Promi
     if (!res.ok) return [];
     const listings = (await res.json()) as RentCastSale[];
 
-    const sales: ComparableSale[] = listings
+    return listings
       .filter((l) => l.lastSalePrice && l.squareFootage && l.lastSaleDate)
       .map((l, i) => ({
         id: `rc-sale-${i}`,
@@ -75,12 +71,7 @@ export async function fetchLiveComparableSales(property: PropertyListing): Promi
         qualityLevel: inferQualityLevel(l) as "original" | "updated" | "renovated",
         pricePerSqft: Math.round(l.lastSalePrice! / l.squareFootage!),
       }));
-
-    liveSalesCache.set(cacheKey, { data: sales, ts: Date.now() });
-    return sales;
-  } catch {
-    return [];
-  }
+  });
 }
 
 function inferQualityLevel(sale: RentCastSale): string {

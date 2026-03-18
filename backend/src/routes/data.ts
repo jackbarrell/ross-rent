@@ -35,20 +35,53 @@ export function createDataRouter(
   const router = Router();
 
   // ─── Macro Data ────────────────────────────────────────────
+  // Prefer live FRED/Census when keys are present, even in mock mode.
+  // Falls back to static JSON if no keys or API failure.
   router.get("/macro/:locationKey", async (req, res, next) => {
     try {
       const locationKey = decodeURIComponent(req.params.locationKey);
-      if (useMockData) {
-        const data = getMacroData(locationKey);
-        if (!data) { res.status(404).json({ message: "Macro data not found for location" }); return; }
-        res.json(data);
-      } else {
-        const properties = await listingProvider.searchProperties(locationKey);
-        const sampleProp = properties[0];
-        const data = await fetchLiveMacroData(locationKey, sampleProp?.lat, sampleProp?.lng);
-        if (!data) { res.status(404).json({ message: "Could not fetch macro data" }); return; }
-        res.json(data);
+      const hasFredKey = !!process.env.FRED_API_KEY;
+      const hasCensusKey = !!process.env.CENSUS_API_KEY;
+
+      if (hasFredKey || hasCensusKey) {
+        // Try live macro data (cached to disk for 24h)
+        try {
+          const properties = await listingProvider.searchProperties(locationKey);
+          const sampleProp = properties[0];
+          const liveData = await fetchLiveMacroData(locationKey, sampleProp?.lat, sampleProp?.lng);
+          if (liveData) {
+            // Merge: start with static, overlay only non-null/defined live values
+            const staticData = getMacroData(locationKey);
+            const base = { ...(staticData ?? {}) };
+            // Overlay live values — skip undefined/null so static fallbacks survive
+            for (const [k, v] of Object.entries(liveData)) {
+              if (v !== undefined && v !== null && k !== "notes") {
+                (base as Record<string, unknown>)[k] = v;
+              }
+            }
+            // Prefer static values for fields live APIs don't cover
+            if (staticData?.strRegulationRisk != null) base.strRegulationRisk = staticData.strRegulationRisk;
+            if (staticData?.rentalVacancyRate != null) base.rentalVacancyRate = staticData.rentalVacancyRate;
+            if (staticData?.tourismDemandIndex != null) base.tourismDemandIndex = staticData.tourismDemandIndex;
+            if (staticData?.crimeIndex != null) base.crimeIndex = staticData.crimeIndex;
+            if (staticData?.walkScore != null) base.walkScore = staticData.walkScore;
+            // Merge notes: live first, then static that aren't duplicated
+            base.notes = [
+              ...(liveData.notes ?? []),
+              ...(staticData?.notes?.filter(n => !liveData.notes?.some(ln => ln.includes(n.split(" ")[0]))) ?? []),
+            ];
+            res.json(base);
+            return;
+          }
+        } catch (err) {
+          console.warn(`Live macro fetch failed for ${locationKey}, falling back to static:`, err);
+        }
       }
+
+      // Fallback to static JSON
+      const data = getMacroData(locationKey);
+      if (!data) { res.status(404).json({ message: "Macro data not found for location" }); return; }
+      res.json(data);
     } catch (error) { next(error); }
   });
 

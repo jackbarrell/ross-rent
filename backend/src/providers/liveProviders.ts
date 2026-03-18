@@ -1,5 +1,6 @@
 import { AnalysisAssumptions, PropertyListing, RentalComparable } from "../models.js";
 import { ListingDataProvider, ShortTermRentalDataProvider } from "./interfaces.js";
+import { cachedFetch, TTL } from "./cache.js";
 
 // ─── Shared helpers ────────────────────────────────────────
 
@@ -62,9 +63,6 @@ interface RentCastListing {
 export class LiveListingProvider implements ListingDataProvider {
   private readonly apiKey: string;
   private readonly baseUrl = "https://api.rentcast.io/v1";
-  // In-memory cache keyed by location → properties
-  private cache = new Map<string, { data: PropertyListing[]; ts: number }>();
-  private readonly cacheTtl = 15 * 60 * 1000; // 15 minutes
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey ?? process.env.RENTCAST_API_KEY ?? "";
@@ -72,57 +70,49 @@ export class LiveListingProvider implements ListingDataProvider {
   }
 
   async getLocations(): Promise<string[]> {
-    // RentCast doesn't have a "list locations" endpoint.
-    // Return currently cached locations + some defaults the app supports.
-    const defaults = ["Austin,TX", "Nashville,TN", "Scottsdale,AZ"];
-    const cached = [...this.cache.keys()];
-    return [...new Set([...defaults, ...cached])];
+    return ["Austin,TX", "Nashville,TN", "Scottsdale,AZ", "Denver,CO", "Tampa,FL"];
   }
 
   async searchProperties(location: string): Promise<PropertyListing[]> {
     if (!location) return [];
 
-    const cached = this.cache.get(location);
-    if (cached && Date.now() - cached.ts < this.cacheTtl) return cached.data;
-
     const [city, state] = location.includes(",")
       ? location.split(",").map((s) => s.trim())
       : [location.trim(), ""];
 
-    const params = new URLSearchParams({
-      city,
-      ...(state && { state }),
-      status: "Active",
-      propertyType: "Single Family,Condo,Townhouse",
-      limit: "20",
+    return cachedFetch<PropertyListing[]>("rentcast", location, TTL.RENTCAST, async () => {
+      const params = new URLSearchParams({
+        city,
+        ...(state && { state }),
+        status: "Active",
+        propertyType: "Single Family,Condo,Townhouse",
+        limit: "20",
+      });
+
+      const listings = await apiFetch<RentCastListing[]>(
+        `${this.baseUrl}/listings/sale?${params}`,
+        this.apiKey,
+        { "X-Api-Key": this.apiKey }
+      );
+
+      return listings
+        .filter((l) => l.listPrice && l.city && l.state)
+        .map((l) => ({
+          id: l.id ?? generateId("rc", l.addressLine1 ?? "", l.city ?? ""),
+          address: l.formattedAddress ?? l.addressLine1 ?? "",
+          city: l.city ?? city,
+          state: l.state ?? state,
+          zip: l.zipCode ?? "",
+          bedrooms: l.bedrooms ?? 3,
+          bathrooms: l.bathrooms ?? 2,
+          sqft: l.squareFootage ?? 1500,
+          listPrice: l.listPrice ?? l.price ?? 0,
+          propertyType: normalizePropertyType(l.propertyType),
+          daysOnMarket: l.daysOnMarket ?? 0,
+          lat: l.latitude ?? 0,
+          lng: l.longitude ?? 0,
+        }));
     });
-
-    const listings = await apiFetch<RentCastListing[]>(
-      `${this.baseUrl}/listings/sale?${params}`,
-      this.apiKey,
-      { "X-Api-Key": this.apiKey }
-    );
-
-    const properties: PropertyListing[] = listings
-      .filter((l) => l.listPrice && l.city && l.state)
-      .map((l) => ({
-        id: l.id ?? generateId("rc", l.addressLine1 ?? "", l.city ?? ""),
-        address: l.formattedAddress ?? l.addressLine1 ?? "",
-        city: l.city ?? city,
-        state: l.state ?? state,
-        zip: l.zipCode ?? "",
-        bedrooms: l.bedrooms ?? 3,
-        bathrooms: l.bathrooms ?? 2,
-        sqft: l.squareFootage ?? 1500,
-        listPrice: l.listPrice ?? l.price ?? 0,
-        propertyType: normalizePropertyType(l.propertyType),
-        daysOnMarket: l.daysOnMarket ?? 0,
-        lat: l.latitude ?? 0,
-        lng: l.longitude ?? 0,
-      }));
-
-    this.cache.set(location, { data: properties, ts: Date.now() });
-    return properties;
   }
 
   async getPropertyById(id: string): Promise<PropertyListing | null> {
@@ -288,6 +278,17 @@ export async function fetchLiveMacroData(
   lat?: number,
   lng?: number
 ): Promise<import("../models.js").MacroData | null> {
+  // Try disk cache first (24h TTL)
+  return cachedFetch<import("../models.js").MacroData>("macro", locationKey, TTL.MACRO, async () => {
+    return _fetchLiveMacroDataUncached(locationKey, lat, lng);
+  });
+}
+
+async function _fetchLiveMacroDataUncached(
+  locationKey: string,
+  lat?: number,
+  lng?: number
+): Promise<import("../models.js").MacroData> {
   const fredKey = process.env.FRED_API_KEY;
   const walkScoreKey = process.env.WALKSCORE_API_KEY;
   const censusKey = process.env.CENSUS_API_KEY;
@@ -313,12 +314,14 @@ export async function fetchLiveMacroData(
   let medianRent = 1800;
   let employmentGrowth = 0.02;
 
-  // Helper to fetch a FRED series
+  // Helper to fetch a FRED series (cached individually for 24h)
   async function fetchFredSeries(seriesId: string, limit = 1): Promise<string[]> {
     if (!fredKey) return [];
-    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${encodeURIComponent(fredKey)}&file_type=json&sort_order=desc&limit=${limit}`;
-    const data = await apiFetch<FredResponse>(url, fredKey);
-    return (data.observations ?? []).filter((o) => o.value !== ".").map((o) => o.value);
+    return cachedFetch<string[]>("fred", `${seriesId}_${limit}`, TTL.FRED, async () => {
+      const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${encodeURIComponent(fredKey)}&file_type=json&sort_order=desc&limit=${limit}`;
+      const data = await apiFetch<FredResponse>(url, fredKey);
+      return (data.observations ?? []).filter((o) => o.value !== ".").map((o) => o.value);
+    });
   }
 
   const notesSources: string[] = [];
@@ -406,11 +409,14 @@ export async function fetchLiveMacroData(
   // ─── Census Bureau: population ───
   let population: number | undefined;
   let populationGrowth = 0.015;
+  let medianHouseholdIncome: number | undefined;
   if (censusKey && fips) {
     try {
-      // ACS 5-year total population by state
-      const censusUrl = `https://api.census.gov/data/2023/acs/acs5?get=B01003_001E&for=state:${fips}&key=${encodeURIComponent(censusKey)}`;
-      const censusData = await apiFetch<string[][]>(censusUrl, censusKey);
+      // ACS 5-year total population by state (cached 7 days)
+      const censusData = await cachedFetch<string[][]>("census", `pop_${fips}`, TTL.CENSUS, async () => {
+        const censusUrl = `https://api.census.gov/data/2022/acs/acs5?get=B01003_001E&for=state:${fips}&key=${encodeURIComponent(censusKey)}`;
+        return apiFetch<string[][]>(censusUrl, censusKey);
+      });
       if (censusData.length >= 2) {
         population = parseInt(censusData[1][0], 10);
         notesSources.push(`Population from Census ACS (state: ${population.toLocaleString()})`);
@@ -419,13 +425,18 @@ export async function fetchLiveMacroData(
       notesSources.push("Census population not available");
     }
 
-    // Median household income by state
+    // Median household income by state (cached 7 days)
     try {
-      const incUrl = `https://api.census.gov/data/2023/acs/acs5?get=B19013_001E&for=state:${fips}&key=${encodeURIComponent(censusKey)}`;
-      const incData = await apiFetch<string[][]>(incUrl, censusKey);
+      const incData = await cachedFetch<string[][]>("census", `income_${fips}`, TTL.CENSUS, async () => {
+        const incUrl = `https://api.census.gov/data/2022/acs/acs5?get=B19013_001E&for=state:${fips}&key=${encodeURIComponent(censusKey)}`;
+        return apiFetch<string[][]>(incUrl, censusKey);
+      });
       if (incData.length >= 2) {
         const medIncome = parseInt(incData[1][0], 10);
-        if (medIncome > 0) notesSources.push(`Median income: $${medIncome.toLocaleString()} (Census ACS)`);
+        if (medIncome > 0) {
+          medianHouseholdIncome = medIncome;
+          notesSources.push(`Median income: $${medIncome.toLocaleString()} (Census ACS)`);
+        }
       }
     } catch { /* use default */ }
   }
@@ -462,7 +473,7 @@ export async function fetchLiveMacroData(
       mortgageRate30yr,
       cpiInflationRate,
       buildingPermitGrowth,
-      medianHouseholdIncome: undefined, // Set below if available
+      medianHouseholdIncome,
       rentalVacancyRate: undefined,
       strRegulationRisk: undefined,
       medianRent,
