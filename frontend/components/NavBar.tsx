@@ -8,8 +8,11 @@ export function NavBar() {
 
   const links = [
     { href: "/", label: "Properties", icon: "⌂" },
+    { href: "/compare", label: "Compare", icon: "⇌" },
+    { href: "/pipeline", label: "Pipeline", icon: "◇" },
     { href: "/portfolio", label: "Portfolio", icon: "◈" },
     { href: "/forecast", label: "Forecast", icon: "◆" },
+    { href: "/about", label: "About", icon: "◉" },
   ];
 
   return (

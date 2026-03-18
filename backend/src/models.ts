@@ -197,6 +197,8 @@ export interface FinancialModelYear {
   loanBalance: number;
   equity: number;
   cumulativeCashflow: number;
+  cashOnCash: number;
+  dscr: number;
 }
 
 export interface RefinanceScenario {
@@ -220,6 +222,8 @@ export interface FinancialModel {
   refinanceScenario: RefinanceScenario;
   irr: number;
   totalReturn: number;
+  cashOnCash: number;
+  dscr: number;
 }
 
 // ─── Module 7: Investment Memo ─────────────────────────────
@@ -349,4 +353,54 @@ export interface PortfolioSummary {
   averageYield: number;
   averageScore: number;
   properties: PortfolioProperty[];
+}
+
+// ─── Deal Pipeline ─────────────────────────────────────────
+
+export type DealStatus = "watching" | "analyzing" | "under-offer" | "purchased" | "passed";
+
+export interface SavedDeal {
+  propertyId: string;
+  status: DealStatus;
+  notes: string;
+  savedAt: string;
+  updatedAt: string;
+}
+
+// ─── Property Comparison ───────────────────────────────────
+
+export interface ComparisonRow {
+  propertyId: string;
+  address: string;
+  city: string;
+  state: string;
+  listPrice: number;
+  bedrooms: number;
+  bathrooms: number;
+  sqft: number;
+  estimatedAdr: number;
+  estimatedOccupancy: number;
+  annualRevenue: number;
+  noi: number;
+  yieldProxy: number;
+  score: number;
+  irr: number;
+  cashOnCash: number;
+  dscr: number;
+  renovationCost: number;
+  equityCreated: number;
+}
+
+// ─── Sensitivity Analysis ──────────────────────────────────
+
+export interface SensitivityResult {
+  variable: string;
+  scenarios: Array<{
+    label: string;
+    value: number;
+    noi: number;
+    cashflow: number;
+    irr: number;
+    cashOnCash: number;
+  }>;
 }

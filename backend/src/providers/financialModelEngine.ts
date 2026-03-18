@@ -31,7 +31,7 @@ function loanBalance(principal: number, annualRate: number, years: number, payme
  * cashflows[0] = initial outlay (negative), cashflows[1..n] = annual net.
  * Terminal value (sale proceeds - loan payoff) added to final year.
  */
-function computeIrr(cashflows: number[], maxIter = 100, tolerance = 1e-6): number {
+export function computeIrr(cashflows: number[], maxIter = 100, tolerance = 1e-6): number {
   let guess = 0.10;
   for (let i = 0; i < maxIter; i++) {
     let npv = 0;
@@ -106,7 +106,8 @@ export function generateFinancialModel(
 
   // ─── Build 5-year projections with refinance integrated ───
   const years: FinancialModelYear[] = [];
-  let cumulativeCashflow = -(downPayment + renovationCost);
+  const totalEquityIn = downPayment + renovationCost;
+  let cumulativeCashflow = -totalEquityIn;
 
   for (let y = 1; y <= 5; y++) {
     const revenue = Math.round(baseRevenue * Math.pow(1 + revenueGrowth, y - 1));
@@ -134,6 +135,11 @@ export function generateFinancialModel(
     const equity = propertyValue - loanBal;
     cumulativeCashflow += cashflow;
 
+    // Cash-on-Cash = annual pre-tax cashflow / total cash invested
+    const cashOnCash = totalEquityIn > 0 ? Math.round((cashflow / totalEquityIn) * 10000) / 10000 : 0;
+    // DSCR = NOI / annual debt service
+    const dscr = currentAnnualPayment > 0 ? Math.round((noi / currentAnnualPayment) * 100) / 100 : 0;
+
     years.push({
       year: y,
       grossRevenue: revenue,
@@ -145,6 +151,8 @@ export function generateFinancialModel(
       loanBalance: loanBal,
       equity,
       cumulativeCashflow: Math.round(cumulativeCashflow),
+      cashOnCash,
+      dscr,
     });
   }
 
@@ -158,10 +166,13 @@ export function generateFinancialModel(
   ];
   const irr = computeIrr(irrCashflows);
 
-  const totalEquityIn = downPayment + renovationCost;
   const totalReturn = totalEquityIn > 0
     ? (years[4].equity + cumulativeCashflow) / totalEquityIn - 1
     : 0;
+
+  // Year-1 metrics for summary
+  const y1CashOnCash = years[0].cashOnCash;
+  const y1Dscr = years[0].dscr;
 
   return {
     propertyId: property.id,
@@ -176,5 +187,7 @@ export function generateFinancialModel(
     refinanceScenario,
     irr: Math.round(irr * 10000) / 10000,
     totalReturn: Math.round(totalReturn * 10000) / 10000,
+    cashOnCash: y1CashOnCash,
+    dscr: y1Dscr,
   };
 }

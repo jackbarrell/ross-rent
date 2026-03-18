@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchForecastVsActual } from "@/lib/api";
+import { fetchForecastVsActual, applyForecastCalibration } from "@/lib/api";
 import { ForecastVsActual } from "@/lib/types";
 import { MetricCard } from "./MetricCard";
 
@@ -18,6 +18,8 @@ function errorColor(pct: number): string {
 export function ForecastPanel({ propertyId }: { propertyId: string }) {
   const [data, setData] = useState<(ForecastVsActual & { hasData: boolean }) | null>(null);
   const [loading, setLoading] = useState(true);
+  const [calibrating, setCalibrating] = useState(false);
+  const [calibrated, setCalibrated] = useState(false);
 
   useEffect(() => {
     fetchForecastVsActual(propertyId)
@@ -120,6 +122,20 @@ export function ForecastPanel({ propertyId }: { propertyId: string }) {
               </tbody>
             </table>
           </div>
+          <button
+            className="btnPrimary"
+            style={{ marginTop: 12 }}
+            disabled={calibrating || calibrated}
+            onClick={async () => {
+              setCalibrating(true);
+              try {
+                await applyForecastCalibration(propertyId);
+                setCalibrated(true);
+              } catch {} finally { setCalibrating(false); }
+            }}
+          >
+            {calibrated ? "✓ Calibration Applied" : calibrating ? "Applying…" : "Apply Calibrated Assumptions"}
+          </button>
         </div>
       )}
     </div>

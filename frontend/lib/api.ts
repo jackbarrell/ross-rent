@@ -1,6 +1,9 @@
 import {
   AnalysisAssumptions,
   CompanyPL,
+  ComparisonRow,
+  CostLibraryItem,
+  DealStatus,
   FinancialModel,
   ForecastVsActual,
   InvestmentAnalysis,
@@ -12,6 +15,8 @@ import {
   PropertyPL,
   RankedProperty,
   RenovationEstimate,
+  SavedDeal,
+  SensitivityResult,
   ValuationResult,
 } from "./types";
 
@@ -118,4 +123,47 @@ export const fetchForecastVsActual = async (propertyId: string) => {
 
 export const fetchPortfolio = async () => {
   return getJson<PortfolioSummary>("/api/portfolio");
+};
+
+// ─── Deal Pipeline ─────────────────────────────────────────
+
+export const fetchDeals = async () => {
+  return getJson<{ deals: SavedDeal[] }>("/api/deals");
+};
+
+export const saveDeal = async (propertyId: string, status?: DealStatus, notes?: string) => {
+  return postJson<SavedDeal>("/api/deals", { propertyId, status, notes });
+};
+
+export const removeDeal = async (propertyId: string) => {
+  const res = await fetch(`${API_BASE}/api/deals/${propertyId}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to remove deal");
+  return res.json();
+};
+
+// ─── Comparison ────────────────────────────────────────────
+
+export const fetchComparison = async (propertyIds: string[]) => {
+  return postJson<{ comparisons: ComparisonRow[] }>("/api/compare", { propertyIds });
+};
+
+// ─── Sensitivity ───────────────────────────────────────────
+
+export const fetchSensitivity = async (propertyId: string) => {
+  return getJson<{ sensitivity: SensitivityResult[] }>(`/api/sensitivity/${propertyId}`);
+};
+
+// ─── Cost Library ──────────────────────────────────────────
+
+export const fetchCostLibrary = async () => {
+  return getJson<Record<string, CostLibraryItem>>("/api/cost-library");
+};
+
+// ─── Forecast Calibration ──────────────────────────────────
+
+export const applyForecastCalibration = async (propertyId: string) => {
+  return postJson<{ applied: unknown[]; calibratedAnalysis: InvestmentAnalysis }>(
+    `/api/forecast-vs-actual/${propertyId}/apply`,
+    {}
+  );
 };

@@ -10,13 +10,15 @@ import { FinancialModelPanel } from "@/components/FinancialModelPanel";
 import { MemoPanel } from "@/components/MemoPanel";
 import { OperationsPanel } from "@/components/OperationsPanel";
 import { ForecastPanel } from "@/components/ForecastPanel";
-import { fetchAnalysis, fetchAnalysisWithOverrides } from "@/lib/api";
-import { AnalysisAssumptions, InvestmentAnalysis, PropertyListing } from "@/lib/types";
+import { SensitivityPanel } from "@/components/SensitivityPanel";
+import { RevenueChart } from "@/components/RevenueChart";
+import { fetchAnalysis, fetchAnalysisWithOverrides, saveDeal, fetchDeals } from "@/lib/api";
+import { AnalysisAssumptions, DealStatus, InvestmentAnalysis, PropertyListing } from "@/lib/types";
 
 function fmt$(n: number) { return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 }); }
 function fmtPct(n: number) { return (n * 100).toFixed(1) + "%"; }
 
-type Tab = "market" | "macro" | "renovation" | "valuation" | "financials" | "memo" | "operations" | "forecast";
+type Tab = "market" | "macro" | "renovation" | "valuation" | "financials" | "sensitivity" | "memo" | "operations" | "forecast";
 
 const TABS: { key: Tab; label: string; ai?: boolean }[] = [
   { key: "market", label: "STR Market" },
@@ -24,6 +26,7 @@ const TABS: { key: Tab; label: string; ai?: boolean }[] = [
   { key: "renovation", label: "Renovation", ai: true },
   { key: "valuation", label: "Valuation" },
   { key: "financials", label: "Financials" },
+  { key: "sensitivity", label: "Sensitivity" },
   { key: "memo", label: "Memo", ai: true },
   { key: "operations", label: "Operations" },
   { key: "forecast", label: "Forecast vs Actual", ai: true },
@@ -42,11 +45,20 @@ export function PropertyDetail({ id }: { id: string }) {
   const [overrides, setOverrides] = useState<Partial<AnalysisAssumptions>>({});
   const [isRecalculating, setIsRecalculating] = useState(false);
 
+  // Deal pipeline state
+  const [dealStatus, setDealStatus] = useState<DealStatus | null>(null);
+  const [savingDeal, setSavingDeal] = useState(false);
+
   useEffect(() => {
     fetchAnalysis(id)
       .then((r) => { setProperty(r.property); setAnalysis(r.analysis); })
       .catch(() => setError("Could not load property analysis."))
       .finally(() => setLoading(false));
+    // Check if property is in deal pipeline
+    fetchDeals().then((d) => {
+      const deal = d.deals.find((x) => x.propertyId === id);
+      if (deal) setDealStatus(deal.status);
+    }).catch(() => {});
   }, [id]);
 
   const recalculate = useCallback(async () => {
@@ -99,6 +111,21 @@ export function PropertyDetail({ id }: { id: string }) {
                 <span className="navBrandDot" style={{ width: 6, height: 6 }} />
                 {a.aiSummary.verdict}
               </div>
+              <button
+                className={dealStatus ? "btnSecondary" : "btnPrimary"}
+                style={{ marginTop: 8 }}
+                disabled={savingDeal}
+                onClick={async () => {
+                  setSavingDeal(true);
+                  try {
+                    const newStatus: DealStatus = dealStatus === "watching" ? "analyzing" : dealStatus === "analyzing" ? "under-offer" : "watching";
+                    await saveDeal(id, newStatus);
+                    setDealStatus(newStatus);
+                  } catch {} finally { setSavingDeal(false); }
+                }}
+              >
+                {dealStatus ? `Pipeline: ${dealStatus}` : "＋ Save to Pipeline"}
+              </button>
             </div>
           </div>
           {property.description && <p className="descText">{property.description}</p>}
@@ -251,6 +278,13 @@ export function PropertyDetail({ id }: { id: string }) {
               </div>
             </section>
 
+            {/* Monthly Revenue Chart */}
+            {a.monthlyRevenue && a.monthlyRevenue.length > 0 && (
+              <section className="panel">
+                <RevenueChart monthlyRevenue={a.monthlyRevenue} />
+              </section>
+            )}
+
             {/* AI Summary */}
             <section className="aiPanel">
               <h3><span className="pillAi" style={{ marginRight: 6 }}>AI</span> Investment Summary</h3>
@@ -291,6 +325,12 @@ export function PropertyDetail({ id }: { id: string }) {
         {activeTab === "financials" && (
           <section className="panel">
             <FinancialModelPanel propertyId={id} />
+          </section>
+        )}
+
+        {activeTab === "sensitivity" && (
+          <section className="panel">
+            <SensitivityPanel propertyId={id} />
           </section>
         )}
 

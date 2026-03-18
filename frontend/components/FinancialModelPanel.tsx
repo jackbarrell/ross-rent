@@ -38,6 +38,8 @@ export function FinancialModelPanel({ propertyId }: { propertyId: string }) {
         <MetricCard label="LTV" value={fmtPct(m.ltv)} />
         <MetricCard label="Est. IRR" value={fmtPct(model.irr)} />
         <MetricCard label="Total Return" value={fmtPct(model.totalReturn)} />
+        <MetricCard label="Cash-on-Cash (Yr 1)" value={fmtPct(model.cashOnCash)} />
+        <MetricCard label="DSCR (Yr 1)" value={model.dscr.toFixed(2) + "x"} />
       </div>
 
       {/* 5-Year P&L Table */}
@@ -53,6 +55,8 @@ export function FinancialModelPanel({ propertyId }: { propertyId: string }) {
               <th className="cellRight">Cashflow</th>
               <th className="cellRight">Prop. Value</th>
               <th className="cellRight">Equity</th>
+              <th className="cellRight">CoC</th>
+              <th className="cellRight">DSCR</th>
               <th className="cellRight">Cum. Cashflow</th>
             </tr>
           </thead>
@@ -69,6 +73,8 @@ export function FinancialModelPanel({ propertyId }: { propertyId: string }) {
                 </td>
                 <td className="cellRight">{fmt$(y.propertyValue)}</td>
                 <td className="cellRight">{fmt$(y.equity)}</td>
+                <td className="cellRight">{fmtPct(y.cashOnCash)}</td>
+                <td className="cellRight">{y.dscr.toFixed(2)}x</td>
                 <td className="cellRight">{fmt$(y.cumulativeCashflow)}</td>
               </tr>
             ))}

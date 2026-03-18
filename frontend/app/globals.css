@@ -611,4 +611,182 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   .metricsGrid { grid-template-columns: 1fr 1fr; }
   .grid { grid-template-columns: 1fr; }
   .rowBetween { flex-direction: column; align-items: stretch; gap: 12px; }
+  .aboutGrid { grid-template-columns: 1fr; }
+}
+
+/* ─── About Page ─────────────────────────────────────────── */
+
+.phaseHeading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  margin: 8px 0 14px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.aboutGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.aboutGridWide {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.aboutCard {
+  position: relative;
+  padding: 24px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aboutCard h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.aboutCard .hintText {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  margin: 4px 0 8px;
+}
+
+.aboutCardNumber {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+  opacity: 0.18;
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.aboutTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.aboutTag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: rgba(56, 189, 248, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(56, 189, 248, 0.12);
+}
+
+/* ─── Revenue Chart ─────────────────────────────────────── */
+
+.revenueChart {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.revenueBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.revenueBarLabel {
+  width: 32px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: right;
+}
+
+.revenueBarTrack {
+  flex: 1;
+  height: 22px;
+  background: var(--surface2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.revenueBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.revenueBarValue {
+  width: 70px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--fg);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.revenueChartLegend {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* ─── Manual Renovation Editor ──────────────────────────── */
+
+.manualRenoEditor {
+  background: var(--surface2);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.manualRenoRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.btnDanger {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--red);
+  background: transparent;
+  color: var(--red);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.btnDanger:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ─── Pipeline ──────────────────────────────────────────── */
+
+.pipelineGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.pipelineCard {
+  transition: box-shadow 0.2s;
+}
+
+.pipelineCard:hover {
+  box-shadow: 0 0 0 1px var(--accent);
 }

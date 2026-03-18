@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { AnalysisEngine } from "./analysis/analysisEngine.js";
 import { AiSummaryService } from "./ai/summary.js";
 import { initDatabase } from "./db/sqlite.js";
-import { AnalysisAssumptions, InvestmentAnalysis } from "./models.js";
+import { AnalysisAssumptions, DealStatus, InvestmentAnalysis, SavedDeal, SensitivityResult } from "./models.js";
 import { MockListingProvider } from "./providers/mockListingProvider.js";
 import { MockShortTermRentalProvider } from "./providers/mockStrProvider.js";
 import { LiveListingProvider, LiveShortTermRentalProvider, fetchLiveMacroData } from "./providers/liveProviders.js";
@@ -15,7 +15,7 @@ import { ListingDataProvider, ShortTermRentalDataProvider } from "./providers/in
 import { getMacroData } from "./providers/macroDataProvider.js";
 import { inferRenovation, calculateCustomRenovation, getCostLibrary } from "./providers/renovationCostEngine.js";
 import { estimatePostRenovationValue } from "./providers/valuationEngine.js";
-import { generateFinancialModel } from "./providers/financialModelEngine.js";
+import { generateFinancialModel, computeIrr } from "./providers/financialModelEngine.js";
 import { getOperationsSnapshot, getPropertyIdsWithBookings } from "./providers/operationsDataProvider.js";
 import { getPropertyPL, getCompanyPL } from "./providers/accountingProvider.js";
 import { compareForecastVsActual } from "./providers/forecastEngine.js";
@@ -395,6 +395,191 @@ app.get("/api/portfolio", async (_req, res, next) => {
       averageYield: Math.round((portfolioProperties.reduce((s, p) => s + p.yieldProxy, 0) / portfolioProperties.length) * 10000) / 10000,
       averageScore: Math.round(portfolioProperties.reduce((s, p) => s + p.score, 0) / portfolioProperties.length * 10) / 10,
       properties: portfolioProperties,
+    });
+  } catch (error) { next(error); }
+});
+
+// ─── Deal Pipeline (in-memory store for PoC) ──────────────
+
+const dealStore = new Map<string, SavedDeal>();
+
+app.get("/api/deals", (_req, res) => {
+  res.json({ deals: Array.from(dealStore.values()) });
+});
+
+app.post("/api/deals", (req, res) => {
+  const { propertyId, status, notes } = req.body as { propertyId: string; status?: DealStatus; notes?: string };
+  if (!propertyId) { res.status(400).json({ message: "propertyId required" }); return; }
+  const now = new Date().toISOString();
+  const deal: SavedDeal = {
+    propertyId,
+    status: status ?? "watching",
+    notes: notes ?? "",
+    savedAt: dealStore.get(propertyId)?.savedAt ?? now,
+    updatedAt: now,
+  };
+  dealStore.set(propertyId, deal);
+  res.json(deal);
+});
+
+app.delete("/api/deals/:propertyId", (req, res) => {
+  dealStore.delete(req.params.propertyId);
+  res.json({ ok: true });
+});
+
+// ─── Property Comparison ───────────────────────────────────
+
+app.post("/api/compare", async (req, res, next) => {
+  try {
+    const { propertyIds } = req.body as { propertyIds: string[] };
+    if (!propertyIds || propertyIds.length < 2) {
+      res.status(400).json({ message: "Provide at least 2 propertyIds" });
+      return;
+    }
+    const rows = [];
+    for (const pid of propertyIds.slice(0, 5)) {
+      const result = await runAnalysis(pid);
+      if (!result) continue;
+      const { property, analysis } = result;
+      const locationKey = `${property.city},${property.state}`;
+      const macro = getMacroData(locationKey);
+      const renovation = inferRenovation(property);
+      const valuation = estimatePostRenovationValue(property, renovation.totalCapexEstimate);
+      const model = generateFinancialModel(property, analysis, renovation.totalCapexEstimate, macro);
+      rows.push({
+        propertyId: property.id,
+        address: property.address,
+        city: property.city,
+        state: property.state,
+        listPrice: property.listPrice,
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        sqft: property.sqft,
+        estimatedAdr: analysis.estimatedAdr,
+        estimatedOccupancy: analysis.estimatedOccupancyRate,
+        annualRevenue: analysis.estimatedAnnualGrossRevenue,
+        noi: analysis.estimatedNetOperatingIncome,
+        yieldProxy: analysis.yieldProxy,
+        score: analysis.attractivenessScore,
+        irr: model.irr,
+        cashOnCash: model.cashOnCash,
+        dscr: model.dscr,
+        renovationCost: renovation.totalCapexEstimate,
+        equityCreated: valuation.equityCreated,
+      });
+    }
+    res.json({ comparisons: rows });
+  } catch (error) { next(error); }
+});
+
+// ─── Sensitivity Analysis ──────────────────────────────────
+
+app.get("/api/sensitivity/:propertyId", async (req, res, next) => {
+  try {
+    const result = await runAnalysis(req.params.propertyId);
+    if (!result) { res.status(404).json({ message: "Property not found" }); return; }
+    const { property, analysis } = result;
+    const locationKey = `${property.city},${property.state}`;
+    const macro = getMacroData(locationKey);
+    const renovation = inferRenovation(property);
+    const renovationCost = renovation.totalCapexEstimate;
+    const baseModel = generateFinancialModel(property, analysis, renovationCost, macro);
+
+    const results: SensitivityResult[] = [];
+
+    // ADR sensitivity: -20%, -10%, base, +10%, +20%
+    const adrMultipliers = [
+      { label: "-20%", factor: 0.8 },
+      { label: "-10%", factor: 0.9 },
+      { label: "Base", factor: 1.0 },
+      { label: "+10%", factor: 1.1 },
+      { label: "+20%", factor: 1.2 },
+    ];
+    const adrScenarios = [];
+    for (const m of adrMultipliers) {
+      const adjResult = await runAnalysis(req.params.propertyId, {
+        seasonalityIndex: analysis.assumptions.seasonalityIndex * m.factor,
+      });
+      if (!adjResult) continue;
+      const adjModel = generateFinancialModel(property, adjResult.analysis, renovationCost, macro);
+      adrScenarios.push({
+        label: m.label,
+        value: Math.round(adjResult.analysis.estimatedAdr),
+        noi: adjResult.analysis.estimatedNetOperatingIncome,
+        cashflow: adjModel.years[0].cashflow,
+        irr: adjModel.irr,
+        cashOnCash: adjModel.cashOnCash,
+      });
+    }
+    results.push({ variable: "ADR", scenarios: adrScenarios });
+
+    // Occupancy sensitivity via vacancy buffer
+    const occScenarios = [];
+    const vacBuffers = [
+      { label: "High vacancy (+10%)", val: analysis.assumptions.vacancyBuffer + 0.10 },
+      { label: "Moderate vacancy (+5%)", val: analysis.assumptions.vacancyBuffer + 0.05 },
+      { label: "Base", val: analysis.assumptions.vacancyBuffer },
+      { label: "Low vacancy (-5%)", val: Math.max(0, analysis.assumptions.vacancyBuffer - 0.05) },
+      { label: "Minimal vacancy (-10%)", val: Math.max(0, analysis.assumptions.vacancyBuffer - 0.10) },
+    ];
+    for (const v of vacBuffers) {
+      const adjResult = await runAnalysis(req.params.propertyId, { vacancyBuffer: v.val });
+      if (!adjResult) continue;
+      const adjModel = generateFinancialModel(property, adjResult.analysis, renovationCost, macro);
+      occScenarios.push({
+        label: v.label,
+        value: Math.round(adjResult.analysis.estimatedOccupancyRate * 100),
+        noi: adjResult.analysis.estimatedNetOperatingIncome,
+        cashflow: adjModel.years[0].cashflow,
+        irr: adjModel.irr,
+        cashOnCash: adjModel.cashOnCash,
+      });
+    }
+    results.push({ variable: "Occupancy", scenarios: occScenarios });
+
+    // Interest rate sensitivity
+    const rateScenarios = [];
+    const rates = [0.05, 0.055, 0.065, 0.075, 0.08];
+    for (const rate of rates) {
+      const adjModel = generateFinancialModel(property, analysis, renovationCost, macro, { interestRate: rate });
+      rateScenarios.push({
+        label: `${(rate * 100).toFixed(1)}%`,
+        value: rate * 100,
+        noi: analysis.estimatedNetOperatingIncome,
+        cashflow: adjModel.years[0].cashflow,
+        irr: adjModel.irr,
+        cashOnCash: adjModel.cashOnCash,
+      });
+    }
+    results.push({ variable: "Interest Rate", scenarios: rateScenarios });
+
+    res.json({ sensitivity: results });
+  } catch (error) { next(error); }
+});
+
+// ─── Forecast Calibration ──────────────────────────────────
+
+app.post("/api/forecast-vs-actual/:propertyId/apply", async (req, res, next) => {
+  try {
+    const result = await runAnalysis(req.params.propertyId);
+    if (!result) { res.status(404).json({ message: "Property not found" }); return; }
+    const operations = getOperationsSnapshot(req.params.propertyId);
+    if (!operations) { res.status(404).json({ message: "No operations data" }); return; }
+
+    const comparison = compareForecastVsActual(result.analysis, operations);
+    // Apply adjustments and re-run analysis
+    const calibratedOverrides: Partial<AnalysisAssumptions> = {};
+    for (const adj of comparison.adjustedAssumptions) {
+      if (adj.field === "vacancyBuffer") {
+        calibratedOverrides.vacancyBuffer = adj.suggestedValue;
+      }
+    }
+    const calibrated = await runAnalysis(req.params.propertyId, calibratedOverrides);
+    if (!calibrated) { res.status(500).json({ message: "Calibration failed" }); return; }
+
+    res.json({
+      applied: comparison.adjustedAssumptions,
+      calibratedAnalysis: calibrated.analysis,
     });
   } catch (error) { next(error); }
 });
