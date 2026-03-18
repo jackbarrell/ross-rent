@@ -33,7 +33,7 @@ export function MemoPanel({ propertyId }: { propertyId: string }) {
   return (
     <div className="panelStack">
       <div className="rowBetween">
-        <h2>Investment Memo</h2>
+        <h2><span className="pillAi" style={{ marginRight: 8 }}>AI</span> Investment Memo</h2>
         <div style={{ display: "flex", gap: 8 }}>
           <button className="btnSecondary" onClick={() => setShowMarkdown(!showMarkdown)}>
             {showMarkdown ? "Formatted" : "Raw Markdown"}

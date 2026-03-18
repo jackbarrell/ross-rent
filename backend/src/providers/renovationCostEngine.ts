@@ -39,9 +39,8 @@ function makeItem(
 }
 
 /**
- * AI-assisted inference: analyse the property description to infer likely
- * renovation works. Uses keyword matching as a heuristic (real system would
- * use an LLM).
+ * Description-based heuristic: analyse the property description to infer likely
+ * renovation works. Uses keyword matching (real system would use an LLM).
  */
 export function inferRenovation(property: PropertyListing): RenovationEstimate {
   const lib = loadCostLibrary();
@@ -111,7 +110,7 @@ export function inferRenovation(property: PropertyListing): RenovationEstimate {
     totalCapexHigh: totalHigh,
     totalCapexEstimate: totalEst,
     timelineWeeks: Math.ceil(maxTimeline / 7) + 2,
-    methodology: "ai-inferred",
+    methodology: "description-analysis",
   };
 }
 

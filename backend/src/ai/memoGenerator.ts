@@ -86,7 +86,7 @@ export function generateInvestmentMemo(
   sections.push({
     title: "Renovation Plan",
     content: [
-      `**Methodology:** ${renovation.methodology === "ai-inferred" ? "AI-inferred from property description" : "Manual specification"}`,
+      `**Methodology:** ${renovation.methodology === "description-analysis" ? "Description analysis (heuristic)" : "Manual specification"}`,
       `**Estimated Timeline:** ${renovation.timelineWeeks} weeks`,
       "",
       `| Work Item | Qty | Low | High | Estimate |`,

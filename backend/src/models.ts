@@ -42,6 +42,7 @@ export interface AnalysisAssumptions {
   platformFeeRate: number;
   capitalReserveRate: number;
   seasonalityIndex: number;
+  monthlySeasonality?: number[];
   riskNotes: string[];
 }
 
@@ -68,6 +69,14 @@ export interface CostBreakdown {
   totalOperatingCost: number;
 }
 
+export interface MonthlyRevenue {
+  month: number;
+  label: string;
+  adr: number;
+  occupancy: number;
+  revenue: number;
+}
+
 export interface InvestmentAnalysis {
   propertyId: string;
   locationKey: string;
@@ -84,6 +93,7 @@ export interface InvestmentAnalysis {
   costBreakdown: CostBreakdown;
   marketMetrics: MarketMetrics;
   rentalComparables: RentalComparable[];
+  monthlyRevenue: MonthlyRevenue[];
   aiSummary: {
     verdict: string;
     upsideFactors: string[];
@@ -137,7 +147,7 @@ export interface RenovationEstimate {
   totalCapexHigh: number;
   totalCapexEstimate: number;
   timelineWeeks: number;
-  methodology: "ai-inferred" | "manual";
+  methodology: "description-analysis" | "manual";
 }
 
 // ─── Module 5: Post-Renovation Valuation ───────────────────
@@ -292,6 +302,13 @@ export interface CompanyPL {
 
 // ─── Module 10: Forecast vs Actual ─────────────────────────
 
+export interface ForecastAdjustment {
+  field: string;
+  originalValue: number;
+  suggestedValue: number;
+  reason: string;
+}
+
 export interface ForecastVsActual {
   propertyId: string;
   period: string;
@@ -306,6 +323,7 @@ export interface ForecastVsActual {
   revenueErrorPct: number;
   aiExplanation: string;
   adjustmentSuggestions: string[];
+  adjustedAssumptions: ForecastAdjustment[];
 }
 
 // ─── Portfolio ─────────────────────────────────────────────

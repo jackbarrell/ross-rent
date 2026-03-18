@@ -38,7 +38,7 @@ export function LocationSelector({ locations, selected, onChange }: LocationSele
           </div>
         </div>
         <div className="searchInputGroup">
-          <label className="label" htmlFor="locationDropdown">Or select a demo location</label>
+          <label className="label" htmlFor="locationDropdown">Or select a location</label>
           <select
             id="locationDropdown"
             className="select"

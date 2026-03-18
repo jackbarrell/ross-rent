@@ -81,8 +81,8 @@ export function ForecastPanel({ propertyId }: { propertyId: string }) {
       </div>
 
       {/* AI Explanation */}
-      <div className="panel" style={{ marginTop: 16, background: "var(--accent-light)" }}>
-        <h3>AI Analysis</h3>
+      <div className="aiPanel" style={{ marginTop: 16 }}>
+        <h3><span className="pillAi" style={{ marginRight: 6 }}>AI</span> Variance Analysis</h3>
         <p>{data.aiExplanation}</p>
       </div>
 
@@ -92,6 +92,34 @@ export function ForecastPanel({ propertyId }: { propertyId: string }) {
           <ul className="factorList upside">
             {data.adjustmentSuggestions.map((s, i) => <li key={i}>{s}</li>)}
           </ul>
+        </div>
+      )}
+
+      {data.adjustedAssumptions && data.adjustedAssumptions.length > 0 && (
+        <div style={{ marginTop: 16 }}>
+          <h3>Calibrated Assumptions</h3>
+          <div className="tableWrap">
+            <table className="dataTable">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th className="cellRight">Original</th>
+                  <th className="cellRight">Suggested</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.adjustedAssumptions.map((adj, i) => (
+                  <tr key={i}>
+                    <td className="cellBold">{adj.field}</td>
+                    <td className="cellRight">{adj.originalValue}</td>
+                    <td className="cellRight" style={{ color: "var(--green)" }}>{adj.suggestedValue}</td>
+                    <td>{adj.reason}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

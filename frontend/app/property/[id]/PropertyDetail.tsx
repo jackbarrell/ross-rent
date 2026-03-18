@@ -18,15 +18,15 @@ function fmtPct(n: number) { return (n * 100).toFixed(1) + "%"; }
 
 type Tab = "market" | "macro" | "renovation" | "valuation" | "financials" | "memo" | "operations" | "forecast";
 
-const TABS: { key: Tab; label: string }[] = [
+const TABS: { key: Tab; label: string; ai?: boolean }[] = [
   { key: "market", label: "STR Market" },
   { key: "macro", label: "Macro Data" },
-  { key: "renovation", label: "Renovation" },
+  { key: "renovation", label: "Renovation", ai: true },
   { key: "valuation", label: "Valuation" },
   { key: "financials", label: "Financials" },
-  { key: "memo", label: "Memo" },
+  { key: "memo", label: "Memo", ai: true },
   { key: "operations", label: "Operations" },
-  { key: "forecast", label: "Forecast vs Actual" },
+  { key: "forecast", label: "Forecast vs Actual", ai: true },
 ];
 
 export function PropertyDetail({ id }: { id: string }) {
@@ -63,10 +63,15 @@ export function PropertyDetail({ id }: { id: string }) {
   };
 
   if (error) return (
-    <div className="container"><div className="pageStack"><Link href="/">← Back</Link><p className="error">{error}</p></div></div>
+    <div className="pageStack"><Link href="/" className="backLink">← Back</Link><p className="error">{error}</p></div>
   );
   if (loading || !property || !analysis) return (
-    <div className="container"><div className="pageStack"><Link href="/">← Back</Link><p>Loading analysis…</p></div></div>
+    <div className="pageStack fadeIn">
+      <Link href="/" className="backLink">← Back</Link>
+      <div className="skeleton skeletonBlock" />
+      <div className="skeleton skeletonBlock" />
+      <div className="skeleton" style={{ height: 40, width: 200 }} />
+    </div>
   );
 
   const a = analysis;
@@ -74,9 +79,8 @@ export function PropertyDetail({ id }: { id: string }) {
   const locationKey = `${property.city},${property.state}`;
 
   return (
-    <div className="container">
-      <div className="pageStack">
-        <Link href="/">← Back to property list</Link>
+    <div className="pageStack fadeIn">
+        <Link href="/" className="backLink">← Back to property list</Link>
 
         {/* ─── Property Header ─── */}
         <section className="panel">
@@ -91,14 +95,16 @@ export function PropertyDetail({ id }: { id: string }) {
             <div className="priceBlock">
               <span className="bigPrice">{fmt$(property.listPrice)}</span>
               <span className="pill">{property.propertyType}</span>
-              <div className={`verdictBadge verdict${a.aiSummary.verdict}`}>{a.aiSummary.verdict}</div>
+              <div className={`verdictBadge verdict${a.aiSummary.verdict}`}>
+                <span className="navBrandDot" style={{ width: 6, height: 6 }} />
+                {a.aiSummary.verdict}
+              </div>
             </div>
           </div>
           {property.description && <p className="descText">{property.description}</p>}
 
-          {/* Quick metrics bar */}
           <div className="metricsGrid" style={{ marginTop: 16 }}>
-            <MetricCard label="Score" value={`${a.attractivenessScore} / 100`} />
+            <MetricCard label="AI Score" value={`${a.attractivenessScore} / 100`} />
             <MetricCard label="Yield" value={fmtPct(a.yieldProxy)} />
             <MetricCard label="Est. ADR" value={fmt$(a.estimatedAdr)} />
             <MetricCard label="Monthly Rev." value={fmt$(a.estimatedMonthlyGrossRevenue)} />
@@ -115,6 +121,7 @@ export function PropertyDetail({ id }: { id: string }) {
               className={`tabBtn ${activeTab === t.key ? "tabActive" : ""}`}
               onClick={() => setActiveTab(t.key)}
             >
+              {t.ai && <span className="pillAi" style={{ marginRight: 4, padding: "1px 4px", fontSize: "0.55rem" }}>AI</span>}
               {t.label}
             </button>
           ))}
@@ -245,15 +252,15 @@ export function PropertyDetail({ id }: { id: string }) {
             </section>
 
             {/* AI Summary */}
-            <section className="panel">
-              <h2>AI Investment Summary</h2>
-              <div className="twoCol">
+            <section className="aiPanel">
+              <h3><span className="pillAi" style={{ marginRight: 6 }}>AI</span> Investment Summary</h3>
+              <div className="twoCol" style={{ marginTop: 12 }}>
                 <div>
-                  <h3>Upside factors</h3>
+                  <h3 style={{ color: "var(--green)" }}>Upside factors</h3>
                   <ul className="factorList upside">{a.aiSummary.upsideFactors.map((f, i) => <li key={i}>{f}</li>)}</ul>
                 </div>
                 <div>
-                  <h3>Downside / risk factors</h3>
+                  <h3 style={{ color: "var(--red)" }}>Downside / risk factors</h3>
                   <ul className="factorList downside">{a.aiSummary.downsideFactors.map((f, i) => <li key={i}>{f}</li>)}</ul>
                 </div>
               </div>
@@ -304,7 +311,6 @@ export function PropertyDetail({ id }: { id: string }) {
             <ForecastPanel propertyId={id} />
           </section>
         )}
-      </div>
     </div>
   );
 }

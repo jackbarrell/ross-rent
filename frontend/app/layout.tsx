@@ -1,9 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { NavBar } from "@/components/NavBar";
 
 export const metadata: Metadata = {
-  title: "RossRent – STR Investment Analysis",
-  description: "Short-term rental investment analysis platform"
+  title: "RossRent – AI-Powered STR Investment Platform",
+  description: "Short-term rental investment analysis platform with AI-powered insights"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <NavBar />
         <main className="container">{children}</main>
       </body>
     </html>

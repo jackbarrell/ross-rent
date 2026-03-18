@@ -41,7 +41,6 @@ export default function HomePage() {
     run();
   }, [selectedLocation]);
 
-  // Load ranking when view switches to ranking mode
   useEffect(() => {
     if (viewMode !== "ranking") return;
     let cancelled = false;
@@ -69,17 +68,13 @@ export default function HomePage() {
   }, [properties, sortKey]);
 
   return (
-    <div className="pageStack">
-      <header className="hero panel">
-        <h1>RossRent — STR Investment Screener</h1>
+    <div className="pageStack fadeIn">
+      <header className="hero">
+        <h1>AI-Powered STR Investment Screener</h1>
         <p>
-          Search for-sale properties, pull short-term rental comps, combine datasets,
-          and get transparent investment analysis with AI-generated summaries.
+          Discover high-yield short-term rental opportunities. Our AI engine analyzes market comps,
+          macro trends, renovation costs, and financial models to surface the best investment deals.
         </p>
-        <nav className="heroNav">
-          <Link href="/portfolio" className="heroLink">📊 Portfolio Dashboard</Link>
-          <Link href="/forecast" className="heroLink">📈 Forecast vs Actual</Link>
-        </nav>
       </header>
 
       <LocationSelector
@@ -101,7 +96,7 @@ export default function HomePage() {
               className={`tabBtn ${viewMode === "ranking" ? "tabActive" : ""}`}
               onClick={() => setViewMode("ranking")}
             >
-              Attractiveness Ranking
+              AI Ranking
             </button>
           </div>
           {viewMode === "grid" && (
@@ -117,7 +112,12 @@ export default function HomePage() {
           )}
         </div>
 
-        {loading && <p>Loading properties…</p>}
+        {loading && (
+          <div className="pageStack" style={{ gap: 12 }}>
+            <div className="skeleton skeletonBlock" />
+            <div className="skeleton skeletonBlock" />
+          </div>
+        )}
         {error && <p className="error">{error}</p>}
 
         {viewMode === "grid" && !loading && (
@@ -133,7 +133,10 @@ export default function HomePage() {
 
         {viewMode === "ranking" && !loading && (
           <>
-            <p className="countLabel">{ranked.length} properties ranked by investment attractiveness</p>
+            <p className="countLabel">
+              <span className="pillAi" style={{ marginRight: 8 }}>AI</span>
+              {ranked.length} properties ranked by investment attractiveness
+            </p>
             <div className="tableWrap">
               <table className="dataTable">
                 <thead>

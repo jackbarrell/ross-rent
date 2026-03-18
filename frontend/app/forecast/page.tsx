@@ -46,125 +46,117 @@ export default function ForecastPage() {
 
   if (loading) {
     return (
-      <div className="container">
-        <div className="pageStack">
-          <Link href="/">← Back to properties</Link>
-          <p>Loading forecast data…</p>
-        </div>
+      <div className="pageStack fadeIn">
+        <div className="skeleton skeletonBlock" />
+        <div className="skeleton skeletonBlock" />
       </div>
     );
   }
 
   return (
-    <div className="container">
-      <div className="pageStack">
-        <Link href="/">← Back to properties</Link>
+    <div className="pageStack fadeIn">
+      <section className="hero">
+        <h1>Forecast vs Actual</h1>
+        <p>Compare predicted performance against real booking and revenue data with AI-powered variance analysis.</p>
+      </section>
 
-        <section className="panel hero">
-          <h1>Forecast vs Actual</h1>
-          <p>Compare predicted performance against real booking and revenue data.</p>
+      {rows.length === 0 ? (
+        <section className="panel">
+          <p className="hintText">No properties with operational data available yet.</p>
         </section>
-
-        {rows.length === 0 ? (
+      ) : (
+        <>
           <section className="panel">
-            <p className="hintText">No properties with operational data available yet.</p>
+            <h2>Properties with Operations Data ({rows.length})</h2>
+            <div className="grid">
+              {rows.map((r) => (
+                <button
+                  key={r.property.id}
+                  className={`card ${selected?.property.id === r.property.id ? "cardSelected" : ""}`}
+                  onClick={() => setSelected(r)}
+                  style={{ cursor: "pointer", textAlign: "left", border: selected?.property.id === r.property.id ? "1px solid var(--accent)" : undefined }}
+                >
+                  <strong style={{ color: "var(--text)" }}>{r.property.address}</strong>
+                  <span style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
+                    {r.property.city}, {r.property.state}
+                  </span>
+                  <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)" }}>
+                    Revenue Variance:{" "}
+                    <span style={{ color: errorColor(r.forecast.revenueErrorPct), fontWeight: 600 }}>
+                      {r.forecast.revenueErrorPct > 0 ? "+" : ""}{r.forecast.revenueErrorPct}%
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
           </section>
-        ) : (
-          <>
-            {/* Property selector */}
-            <section className="panel">
-              <h2>Properties with Operations Data ({rows.length})</h2>
-              <div className="grid">
-                {rows.map((r) => (
-                  <button
-                    key={r.property.id}
-                    className={`card ${selected?.property.id === r.property.id ? "cardSelected" : ""}`}
-                    onClick={() => setSelected(r)}
-                    style={{ cursor: "pointer", textAlign: "left" }}
-                  >
-                    <strong>{r.property.address}</strong>
-                    <span style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
-                      {r.property.city}, {r.property.state}
-                    </span>
-                    <span style={{ fontSize: "0.82rem" }}>
-                      Revenue Variance:{" "}
-                      <span style={{ color: errorColor(r.forecast.revenueErrorPct), fontWeight: 600 }}>
-                        {r.forecast.revenueErrorPct > 0 ? "+" : ""}{r.forecast.revenueErrorPct}%
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </section>
 
-            {/* Detail for selected */}
-            {selected && (
-              <>
+          {selected && (
+            <>
+              <section className="panel">
+                <h2>
+                  <Link href={`/property/${selected.property.id}`}>{selected.property.address}</Link>
+                  {" "}— Forecast Comparison
+                </h2>
+                <p className="hintText">Period: {selected.forecast.period}</p>
+
+                <div className="tableWrap">
+                  <table className="dataTable">
+                    <thead>
+                      <tr>
+                        <th>Metric</th>
+                        <th className="cellRight">Predicted</th>
+                        <th className="cellRight">Actual</th>
+                        <th className="cellRight">Variance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="cellBold">Average Daily Rate</td>
+                        <td className="cellRight">{fmt$(selected.forecast.predictedAdr)}</td>
+                        <td className="cellRight">{fmt$(selected.forecast.actualAdr)}</td>
+                        <td className="cellRight" style={{ color: errorColor(selected.forecast.adrErrorPct), fontWeight: 600 }}>
+                          {selected.forecast.adrErrorPct > 0 ? "+" : ""}{selected.forecast.adrErrorPct}%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="cellBold">Occupancy Rate</td>
+                        <td className="cellRight">{fmtPct(selected.forecast.predictedOccupancy)}</td>
+                        <td className="cellRight">{fmtPct(selected.forecast.actualOccupancy)}</td>
+                        <td className="cellRight" style={{ color: errorColor(selected.forecast.occupancyErrorPct), fontWeight: 600 }}>
+                          {selected.forecast.occupancyErrorPct > 0 ? "+" : ""}{selected.forecast.occupancyErrorPct}%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="cellBold">Annual Revenue (annualised)</td>
+                        <td className="cellRight">{fmt$(selected.forecast.predictedRevenue)}</td>
+                        <td className="cellRight">{fmt$(selected.forecast.actualRevenue)}</td>
+                        <td className="cellRight" style={{ color: errorColor(selected.forecast.revenueErrorPct), fontWeight: 600 }}>
+                          {selected.forecast.revenueErrorPct > 0 ? "+" : ""}{selected.forecast.revenueErrorPct}%
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section className="aiPanel">
+                <h3><span className="pillAi" style={{ marginRight: 6 }}>AI</span> Variance Analysis</h3>
+                <p>{selected.forecast.aiExplanation}</p>
+              </section>
+
+              {selected.forecast.adjustmentSuggestions.length > 0 && (
                 <section className="panel">
-                  <h2>
-                    <Link href={`/property/${selected.property.id}`}>{selected.property.address}</Link>
-                    {" "}— Forecast Comparison
-                  </h2>
-                  <p className="hintText">Period: {selected.forecast.period}</p>
-
-                  <div className="tableWrap">
-                    <table className="dataTable">
-                      <thead>
-                        <tr>
-                          <th>Metric</th>
-                          <th className="cellRight">Predicted</th>
-                          <th className="cellRight">Actual</th>
-                          <th className="cellRight">Variance</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="cellBold">Average Daily Rate</td>
-                          <td className="cellRight">{fmt$(selected.forecast.predictedAdr)}</td>
-                          <td className="cellRight">{fmt$(selected.forecast.actualAdr)}</td>
-                          <td className="cellRight" style={{ color: errorColor(selected.forecast.adrErrorPct), fontWeight: 600 }}>
-                            {selected.forecast.adrErrorPct > 0 ? "+" : ""}{selected.forecast.adrErrorPct}%
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="cellBold">Occupancy Rate</td>
-                          <td className="cellRight">{fmtPct(selected.forecast.predictedOccupancy)}</td>
-                          <td className="cellRight">{fmtPct(selected.forecast.actualOccupancy)}</td>
-                          <td className="cellRight" style={{ color: errorColor(selected.forecast.occupancyErrorPct), fontWeight: 600 }}>
-                            {selected.forecast.occupancyErrorPct > 0 ? "+" : ""}{selected.forecast.occupancyErrorPct}%
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="cellBold">Annual Revenue (annualised)</td>
-                          <td className="cellRight">{fmt$(selected.forecast.predictedRevenue)}</td>
-                          <td className="cellRight">{fmt$(selected.forecast.actualRevenue)}</td>
-                          <td className="cellRight" style={{ color: errorColor(selected.forecast.revenueErrorPct), fontWeight: 600 }}>
-                            {selected.forecast.revenueErrorPct > 0 ? "+" : ""}{selected.forecast.revenueErrorPct}%
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                  <h3 style={{ margin: "0 0 8px" }}>Recommended Adjustments</h3>
+                  <ul className="factorList upside">
+                    {selected.forecast.adjustmentSuggestions.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
                 </section>
-
-                <section className="panel" style={{ background: "var(--accent-light)" }}>
-                  <h3>AI Analysis</h3>
-                  <p>{selected.forecast.aiExplanation}</p>
-                </section>
-
-                {selected.forecast.adjustmentSuggestions.length > 0 && (
-                  <section className="panel">
-                    <h3>Recommended Adjustments</h3>
-                    <ul className="factorList upside">
-                      {selected.forecast.adjustmentSuggestions.map((s, i) => <li key={i}>{s}</li>)}
-                    </ul>
-                  </section>
-                )}
-              </>
-            )}
-          </>
-        )}
-      </div>
+              )}
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 }

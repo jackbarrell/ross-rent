@@ -24,7 +24,7 @@ export function RenovationPanel({ propertyId, property }: { propertyId: string; 
     <div className="panelStack">
       <div className="rowBetween">
         <h2>Renovation Cost Estimate</h2>
-        <span className="pillSmall">{estimate.methodology === "ai-inferred" ? "AI-Inferred" : "Manual"}</span>
+        <span className="pillAi">{estimate.methodology === "description-analysis" ? "Description Analysis" : "Manual"}</span>
       </div>
 
       <p className="hintText">

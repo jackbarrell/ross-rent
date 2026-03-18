@@ -26,12 +26,42 @@ function loanBalance(principal: number, annualRate: number, years: number, payme
   );
 }
 
+/**
+ * Compute IRR via Newton-Raphson on NPV of annual cashflows.
+ * cashflows[0] = initial outlay (negative), cashflows[1..n] = annual net.
+ * Terminal value (sale proceeds - loan payoff) added to final year.
+ */
+function computeIrr(cashflows: number[], maxIter = 100, tolerance = 1e-6): number {
+  let guess = 0.10;
+  for (let i = 0; i < maxIter; i++) {
+    let npv = 0;
+    let dNpv = 0;
+    for (let t = 0; t < cashflows.length; t++) {
+      const discountFactor = Math.pow(1 + guess, t);
+      npv += cashflows[t] / discountFactor;
+      if (t > 0) dNpv -= (t * cashflows[t]) / Math.pow(1 + guess, t + 1);
+    }
+    if (Math.abs(dNpv) < 1e-12) break;
+    const newGuess = guess - npv / dNpv;
+    if (Math.abs(newGuess - guess) < tolerance) return newGuess;
+    guess = newGuess;
+  }
+  return guess;
+}
+
+export interface FinancialModelConfig {
+  revenueGrowth?: number;
+  costGrowth?: number;
+  appreciationOverride?: number;
+}
+
 export function generateFinancialModel(
   property: PropertyListing,
   analysis: InvestmentAnalysis,
   renovationCost: number,
   macro: MacroData | null,
-  mortgageOverrides?: Partial<MortgageAssumptions>
+  mortgageOverrides?: Partial<MortgageAssumptions>,
+  config?: FinancialModelConfig
 ): FinancialModel {
   const mortgage: MortgageAssumptions = {
     ltv: 0.75,
@@ -44,15 +74,37 @@ export function generateFinancialModel(
   const downPayment = Math.round(purchasePrice * (1 - mortgage.ltv));
   const loan = Math.round(purchasePrice * mortgage.ltv);
   const monthly = monthlyPayment(loan, mortgage.interestRate, mortgage.termYears);
-  const annualPayment = Math.round(monthly * 12);
+  const originalAnnualPayment = Math.round(monthly * 12);
 
-  const revenueGrowth = 0.03;
-  const costGrowth = 0.025;
-  const appreciation = macro?.homePriceAppreciation ?? 0.035;
+  const revenueGrowth = config?.revenueGrowth ?? 0.03;
+  const costGrowth = config?.costGrowth ?? 0.025;
+  const appreciation = config?.appreciationOverride ?? macro?.homePriceAppreciation ?? 0.035;
 
   const baseRevenue = analysis.estimatedAnnualGrossRevenue;
   const baseOpCost = analysis.estimatedOperatingCost;
 
+  // ─── Compute refinance scenario first so we can apply it to years 4-5 ───
+  const refiRate = Math.max(0.04, mortgage.interestRate - 0.005);
+
+  // Calculate year 3 property value and loan balance for refinance
+  const y3PropertyValue = Math.round(
+    (purchasePrice + renovationCost) * Math.pow(1 + appreciation, 3)
+  );
+  const y3LoanBalance = Math.round(loanBalance(loan, mortgage.interestRate, mortgage.termYears, 3 * 12));
+  const newLoan = Math.round(y3PropertyValue * 0.75);
+  const equityOut = Math.max(0, newLoan - y3LoanBalance);
+  const refiMonthly = monthlyPayment(newLoan, refiRate, 30);
+  const refiAnnualPayment = Math.round(refiMonthly * 12);
+
+  const refinanceScenario: RefinanceScenario = {
+    refinanceYear: 3,
+    newLoanAmount: newLoan,
+    equityPulledOut: equityOut,
+    newMonthlyPayment: Math.round(refiMonthly),
+    newAnnualPayment: refiAnnualPayment,
+  };
+
+  // ─── Build 5-year projections with refinance integrated ───
   const years: FinancialModelYear[] = [];
   let cumulativeCashflow = -(downPayment + renovationCost);
 
@@ -60,11 +112,25 @@ export function generateFinancialModel(
     const revenue = Math.round(baseRevenue * Math.pow(1 + revenueGrowth, y - 1));
     const opCosts = Math.round(baseOpCost * Math.pow(1 + costGrowth, y - 1));
     const noi = revenue - opCosts;
-    const cashflow = noi - annualPayment;
+
+    // After refinance at year 3, years 4-5 use refi mortgage payment and loan balance
+    const isPostRefi = y > 3;
+    const currentAnnualPayment = isPostRefi ? refiAnnualPayment : originalAnnualPayment;
+    const cashflow = noi - currentAnnualPayment;
+
     const propertyValue = Math.round(
       (purchasePrice + renovationCost) * Math.pow(1 + appreciation, y)
     );
-    const loanBal = Math.round(loanBalance(loan, mortgage.interestRate, mortgage.termYears, y * 12));
+
+    let loanBal: number;
+    if (isPostRefi) {
+      // Post-refinance: loan balance on the new loan
+      const refiPaymentsMade = (y - 3) * 12;
+      loanBal = Math.round(loanBalance(newLoan, refiRate, 30, refiPaymentsMade));
+    } else {
+      loanBal = Math.round(loanBalance(loan, mortgage.interestRate, mortgage.termYears, y * 12));
+    }
+
     const equity = propertyValue - loanBal;
     cumulativeCashflow += cashflow;
 
@@ -73,7 +139,7 @@ export function generateFinancialModel(
       grossRevenue: revenue,
       operatingCosts: opCosts,
       netOperatingIncome: noi,
-      mortgagePayment: annualPayment,
+      mortgagePayment: currentAnnualPayment,
       cashflow,
       propertyValue,
       loanBalance: loanBal,
@@ -82,29 +148,20 @@ export function generateFinancialModel(
     });
   }
 
-  // ─── Refinance scenario at year 3 ───
-  const y3Value = years[2].propertyValue;
-  const y3Balance = years[2].loanBalance;
-  const newLoan = Math.round(y3Value * 0.75);
-  const equityOut = Math.max(0, newLoan - y3Balance);
-  const refiRate = Math.max(0.04, mortgage.interestRate - 0.005);
-  const newMonthly = monthlyPayment(newLoan, refiRate, 30);
+  // ─── True IRR via Newton-Raphson ───
+  // Cash flows: year 0 = -(downPayment + renovationCost), years 1-4 = cashflow,
+  // year 5 = cashflow + terminal equity (property value - loan balance)
+  const irrCashflows = [
+    -(downPayment + renovationCost),
+    ...years.slice(0, 4).map((y) => y.cashflow),
+    years[4].cashflow + years[4].propertyValue - years[4].loanBalance,
+  ];
+  const irr = computeIrr(irrCashflows);
 
-  const refinanceScenario: RefinanceScenario = {
-    refinanceYear: 3,
-    newLoanAmount: newLoan,
-    equityPulledOut: equityOut,
-    newMonthlyPayment: Math.round(newMonthly),
-    newAnnualPayment: Math.round(newMonthly * 12),
-  };
-
-  // ─── Simple IRR approximation ───
   const totalEquityIn = downPayment + renovationCost;
-  const year5Equity = years[4].equity;
   const totalReturn = totalEquityIn > 0
-    ? (year5Equity + cumulativeCashflow + totalEquityIn - totalEquityIn) / totalEquityIn
+    ? (years[4].equity + cumulativeCashflow) / totalEquityIn - 1
     : 0;
-  const irr = totalReturn > -1 ? Math.pow(1 + totalReturn, 0.2) - 1 : 0;
 
   return {
     propertyId: property.id,
@@ -114,7 +171,7 @@ export function generateFinancialModel(
     downPayment,
     loanAmount: loan,
     mortgageAssumptions: mortgage,
-    annualMortgagePayment: annualPayment,
+    annualMortgagePayment: originalAnnualPayment,
     years,
     refinanceScenario,
     irr: Math.round(irr * 10000) / 10000,

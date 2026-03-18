@@ -3,9 +3,12 @@ import {
   CostBreakdown,
   InvestmentAnalysis,
   MarketMetrics,
+  MonthlyRevenue,
   PropertyListing,
   RentalComparable
 } from "../models.js";
+
+const MONTH_LABELS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const average = (values: number[]) => values.reduce((sum, v) => sum + v, 0) / Math.max(values.length, 1);
 
@@ -46,11 +49,16 @@ export class AnalysisEngine {
       clamp(marketMetrics.estimatedOccupancyRate - assumptions.vacancyBuffer, 0.35, 0.9).toFixed(4)
     );
 
-    // --- Revenue ---
-    const estimatedMonthlyGrossRevenue = round2(
-      estimatedAdr * estimatedOccupancyRate * assumptions.baseMonthlyDays
-    );
-    const estimatedAnnualGrossRevenue = round2(estimatedMonthlyGrossRevenue * 12);
+    // --- Revenue (monthly seasonality) ---
+    const seasonality = assumptions.monthlySeasonality ?? Array(12).fill(1);
+    const monthlyRevenue: MonthlyRevenue[] = seasonality.map((factor, i) => {
+      const mAdr = round2(estimatedAdr * factor);
+      const mOcc = clamp(estimatedOccupancyRate * factor, 0.15, 0.95);
+      const rev = round2(mAdr * mOcc * assumptions.baseMonthlyDays);
+      return { month: i + 1, label: MONTH_LABELS[i], adr: mAdr, occupancy: round2(mOcc), revenue: rev };
+    });
+    const estimatedAnnualGrossRevenue = round2(monthlyRevenue.reduce((s, m) => s + m.revenue, 0));
+    const estimatedMonthlyGrossRevenue = round2(estimatedAnnualGrossRevenue / 12);
 
     // --- Cost breakdown ---
     const totalBasis = property.listPrice + renovationCost;
@@ -114,7 +122,8 @@ export class AnalysisEngine {
       assumptions,
       costBreakdown,
       marketMetrics,
-      rentalComparables
+      rentalComparables,
+      monthlyRevenue
     };
   }
 }

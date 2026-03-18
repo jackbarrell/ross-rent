@@ -11,8 +11,8 @@ const workspaceRoot = path.resolve(__dirname, "../../../");
 const assumptionsPath = path.join(workspaceRoot, "data", "market_assumptions.json");
 
 type RawAssumptions = {
-  default: Omit<AnalysisAssumptions, "seasonalityIndex" | "riskNotes">;
-  locations: Record<string, { seasonalityIndex: number; riskNotes: string[] }>;
+  default: Omit<AnalysisAssumptions, "seasonalityIndex" | "monthlySeasonality" | "riskNotes">;
+  locations: Record<string, { seasonalityIndex: number; monthlySeasonality?: number[]; riskNotes: string[] }>;
 };
 
 export class MockShortTermRentalProvider implements ShortTermRentalDataProvider {
@@ -39,6 +39,7 @@ export class MockShortTermRentalProvider implements ShortTermRentalDataProvider 
     return {
       ...this.assumptions.default,
       seasonalityIndex: locationSpecific.seasonalityIndex,
+      monthlySeasonality: locationSpecific.monthlySeasonality,
       riskNotes: locationSpecific.riskNotes
     };
   }

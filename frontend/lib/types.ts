@@ -61,7 +61,16 @@ export interface AnalysisAssumptions {
   platformFeeRate: number;
   capitalReserveRate: number;
   seasonalityIndex: number;
+  monthlySeasonality?: number[];
   riskNotes: string[];
+}
+
+export interface MonthlyRevenue {
+  month: number;
+  label: string;
+  adr: number;
+  occupancy: number;
+  revenue: number;
 }
 
 export interface InvestmentAnalysis {
@@ -80,6 +89,7 @@ export interface InvestmentAnalysis {
   rentalComparables: RentalComparable[];
   costBreakdown: CostBreakdown;
   assumptions: AnalysisAssumptions;
+  monthlyRevenue: MonthlyRevenue[];
   aiSummary: {
     verdict: string;
     upsideFactors: string[];
@@ -295,6 +305,13 @@ export interface CompanyPL {
 
 // ─── Forecast vs Actual ────────────────────────────────────
 
+export interface ForecastAdjustment {
+  field: string;
+  originalValue: number;
+  suggestedValue: number;
+  reason: string;
+}
+
 export interface ForecastVsActual {
   propertyId: string;
   period: string;
@@ -309,6 +326,7 @@ export interface ForecastVsActual {
   revenueErrorPct: number;
   aiExplanation: string;
   adjustmentSuggestions: string[];
+  adjustedAssumptions: ForecastAdjustment[];
   hasData: boolean;
 }
 

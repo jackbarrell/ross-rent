@@ -81,11 +81,12 @@ Frontend URL: http://localhost:3000
 
 ## Analysis formulas (explicit)
 
-- `monthlyRevenue = ADR × occupancyRate × daysInMonth`
-- `annualRevenue = monthlyRevenue × 12`
+- `monthlyRevenue[i] = ADR × seasonalityFactor[i] × occupancy × seasonalityFactor[i] × daysInMonth` (per-month with seasonality curves)
+- `annualRevenue = Σ monthlyRevenue[0..11]`
 - `operatingCost = variableCosts + fixedCosts`
 - `NOI = annualRevenue − operatingCost`
-- `yieldProxy = NOI ÷ purchasePrice`
+- `yieldProxy = NOI ÷ totalBasis`
+- `IRR = Newton-Raphson solver on 5-year cashflows including terminal sale`
 
 Attractiveness score is a weighted heuristic using yield, occupancy, comp depth, and risk penalty.
 
@@ -95,7 +96,21 @@ Attractiveness score is a weighted heuristic using yield, occupancy, comp depth,
 - `GET /api/locations`
 - `GET /api/properties?location=Austin,TX`
 - `GET /api/properties/:id`
-- `GET /api/analysis/:propertyId`
+- `GET /api/analysis/:propertyId` — STR investment analysis
+- `POST /api/analysis/:propertyId` — analysis with custom assumptions
+- `GET /api/ranking?location=Austin,TX` — ranked properties by score
+- `GET /api/macro/:locationKey` — macro/economic data
+- `GET /api/cost-library` — renovation cost library
+- `GET /api/renovation/:propertyId` — auto renovation estimate
+- `POST /api/renovation/:propertyId` — custom renovation items
+- `GET /api/valuation/:propertyId?renovationCost=N` — post-reno valuation
+- `GET /api/financial-model/:propertyId?renovationCost=N` — 5-year model
+- `GET /api/memo/:propertyId` — investment memo
+- `GET /api/operations/:propertyId` — booking operations snapshot
+- `GET /api/accounting` — company-level P&L
+- `GET /api/accounting/:propertyId` — property-level P&L
+- `GET /api/forecast-vs-actual/:propertyId` — forecast vs actual comparison
+- `GET /api/portfolio` — portfolio summary
 
 ## Real vs mocked in this PoC
 

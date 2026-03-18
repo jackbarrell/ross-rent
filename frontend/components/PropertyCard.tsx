@@ -8,11 +8,11 @@ export function PropertyCard({ property }: { property: PropertyListing }) {
         <h3>{property.address}</h3>
         <span className="pill">{property.propertyType}</span>
       </div>
-      <p>{property.city}, {property.state} {property.zip}</p>
-      <p>{property.bedrooms} bd • {property.bathrooms} ba • {property.sqft.toLocaleString()} sqft</p>
+      <p className="cardLocation">{property.city}, {property.state} {property.zip}</p>
+      <p className="cardSpecs">{property.bedrooms} bd · {property.bathrooms} ba · {property.sqft.toLocaleString()} sqft</p>
       <div className="cardFooter">
         <strong>${property.listPrice.toLocaleString()}</strong>
-        <span>{property.daysOnMarket} days on market</span>
+        <span>{property.daysOnMarket} DOM</span>
       </div>
     </Link>
   );

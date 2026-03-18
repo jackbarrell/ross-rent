@@ -1,4 +1,4 @@
-import { ForecastVsActual, InvestmentAnalysis, OperationsSnapshot } from "../models.js";
+import { ForecastAdjustment, ForecastVsActual, InvestmentAnalysis, OperationsSnapshot } from "../models.js";
 
 /**
  * Compare predicted (from analysis engine) vs actual (from operations data).
@@ -83,6 +83,26 @@ export function compareForecastVsActual(
     suggestions.push("Update financial model with actuals — projected returns may be conservative.");
   }
 
+  // Build concrete adjusted assumption values
+  const adjustedAssumptions: ForecastAdjustment[] = [];
+  if (Math.abs(adrErrorPct) > 5) {
+    const suggestedAdr = actualAdr;
+    adjustedAssumptions.push({
+      field: "estimatedAdr",
+      originalValue: predictedAdr,
+      suggestedValue: Math.round(suggestedAdr * 100) / 100,
+      reason: `Actual ADR of $${actualAdr.toFixed(0)} differs from predicted $${predictedAdr.toFixed(0)} by ${adrErrorPct}%`,
+    });
+  }
+  if (Math.abs(occupancyErrorPct) > 5) {
+    adjustedAssumptions.push({
+      field: "vacancyBuffer",
+      originalValue: analysis.assumptions.vacancyBuffer,
+      suggestedValue: Math.round(Math.max(0, analysis.assumptions.vacancyBuffer + (predictedOccupancy - actualOccupancy)) * 1000) / 1000,
+      reason: `Actual occupancy ${(actualOccupancy * 100).toFixed(1)}% vs predicted ${(predictedOccupancy * 100).toFixed(1)}%`,
+    });
+  }
+
   return {
     propertyId: analysis.propertyId,
     period: operations.period,
@@ -97,5 +117,6 @@ export function compareForecastVsActual(
     revenueErrorPct,
     aiExplanation: explanationParts.join(" "),
     adjustmentSuggestions: suggestions,
+    adjustedAssumptions,
   };
 }
