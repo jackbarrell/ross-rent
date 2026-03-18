@@ -11,11 +11,22 @@
     "walkScore": 42,
     "economicTrendScore": 82,
     "marketGrowthScore": 85,
+    "mortgageRate30yr": 6.72,
+    "cpiInflationRate": 0.031,
+    "buildingPermitGrowth": 0.082,
+    "medianHouseholdIncome": 85000,
+    "rentalVacancyRate": 0.058,
+    "strRegulationRisk": 6,
+    "medianRent": 1850,
+    "population": 1028225,
+    "employmentGrowth": 0.034,
     "notes": [
       "Strong tech sector job growth driving population influx",
       "Major festival and event market (SXSW, ACL, F1)",
       "Rapid housing supply expansion may moderate price growth",
-      "Short-term rental regulations tightening in some zones"
+      "Short-term rental regulations tightening in some zones",
+      "Median household income $85K — above national average",
+      "Building permits up 8.2% YoY — strong new supply"
     ]
   },
   "Nashville,TN": {
@@ -30,11 +41,22 @@
     "walkScore": 28,
     "economicTrendScore": 78,
     "marketGrowthScore": 80,
+    "mortgageRate30yr": 6.72,
+    "cpiInflationRate": 0.029,
+    "buildingPermitGrowth": 0.065,
+    "medianHouseholdIncome": 72000,
+    "rentalVacancyRate": 0.052,
+    "strRegulationRisk": 7,
+    "medianRent": 1680,
+    "population": 715884,
+    "employmentGrowth": 0.028,
     "notes": [
       "Tourism-driven economy with strong music and entertainment sector",
       "Bachelorette / party destination supports high weekend ADR",
       "New STR permit requirements in core neighbourhoods",
-      "Healthcare sector provides economic stability"
+      "Healthcare sector provides economic stability",
+      "Building permits up 6.5% YoY — moderate new supply",
+      "Rental vacancy 5.2% — tight market"
     ]
   },
   "Scottsdale,AZ": {
@@ -49,11 +71,82 @@
     "walkScore": 22,
     "economicTrendScore": 75,
     "marketGrowthScore": 77,
+    "mortgageRate30yr": 6.72,
+    "cpiInflationRate": 0.028,
+    "buildingPermitGrowth": 0.055,
+    "medianHouseholdIncome": 98000,
+    "rentalVacancyRate": 0.071,
+    "strRegulationRisk": 2,
+    "medianRent": 2100,
+    "population": 260988,
+    "employmentGrowth": 0.019,
     "notes": [
       "Strong winter snowbird demand creates high seasonality",
       "Spring training baseball drives Feb–Apr bookings",
       "Summer heat suppresses Jun–Aug demand significantly",
-      "Arizona state law preempts most local STR restrictions"
+      "Arizona state law preempts most local STR restrictions",
+      "High median income ($98K) supports premium ADR",
+      "Rental vacancy 7.1% — some seasonal softness"
+    ]
+  },
+  "Denver,CO": {
+    "locationKey": "Denver,CO",
+    "populationGrowth": 0.016,
+    "gdpGrowthProxy": 0.035,
+    "tourismDemandIndex": 7.5,
+    "medianHomePrice": 545000,
+    "homePriceAppreciation": 0.028,
+    "unemploymentRate": 0.033,
+    "crimeIndex": 5.8,
+    "walkScore": 61,
+    "economicTrendScore": 74,
+    "marketGrowthScore": 76,
+    "mortgageRate30yr": 6.72,
+    "cpiInflationRate": 0.030,
+    "buildingPermitGrowth": 0.042,
+    "medianHouseholdIncome": 82000,
+    "rentalVacancyRate": 0.063,
+    "strRegulationRisk": 5,
+    "medianRent": 1920,
+    "population": 713252,
+    "employmentGrowth": 0.021,
+    "notes": [
+      "Strong outdoor recreation and ski tourism demand",
+      "Tech and aerospace sector driving wage growth",
+      "STR licensing required — moderate regulatory environment",
+      "High altitude and mountain proximity supports premium ADR",
+      "Walkability score 61 — above average for metro",
+      "Building permits slowing — 4.2% growth vs 8% prior year"
+    ]
+  },
+  "Tampa,FL": {
+    "locationKey": "Tampa,FL",
+    "populationGrowth": 0.024,
+    "gdpGrowthProxy": 0.039,
+    "tourismDemandIndex": 7.6,
+    "medianHomePrice": 385000,
+    "homePriceAppreciation": 0.042,
+    "unemploymentRate": 0.030,
+    "crimeIndex": 5.5,
+    "walkScore": 49,
+    "economicTrendScore": 79,
+    "marketGrowthScore": 81,
+    "mortgageRate30yr": 6.72,
+    "cpiInflationRate": 0.032,
+    "buildingPermitGrowth": 0.091,
+    "medianHouseholdIncome": 62000,
+    "rentalVacancyRate": 0.068,
+    "strRegulationRisk": 4,
+    "medianRent": 1580,
+    "population": 403364,
+    "employmentGrowth": 0.031,
+    "notes": [
+      "Strong population growth from Northeast migration",
+      "Beach proximity and warm climate drive year-round demand",
+      "No state income tax makes Florida attractive to investors",
+      "Hurricane risk requires adequate insurance coverage",
+      "Home price appreciation 4.2% — above national average",
+      "Building permits surging 9.1% — watch for oversupply"
     ]
   }
 }

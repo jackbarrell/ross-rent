@@ -290,6 +290,7 @@ export async function fetchLiveMacroData(
 ): Promise<import("../models.js").MacroData | null> {
   const fredKey = process.env.FRED_API_KEY;
   const walkScoreKey = process.env.WALKSCORE_API_KEY;
+  const censusKey = process.env.CENSUS_API_KEY;
 
   const [city, state] = locationKey.split(",").map((s) => s.trim());
 
@@ -297,80 +298,179 @@ export async function fetchLiveMacroData(
   const stateFips: Record<string, string> = {
     TX: "48", TN: "47", AZ: "04", FL: "12", CO: "08", CA: "06",
     NY: "36", GA: "13", NC: "37", SC: "45", NV: "32", OR: "41",
+    WA: "53", MA: "25", IL: "17", PA: "42", OH: "39", MI: "26",
+    NJ: "34", VA: "51", MD: "24", MN: "27", WI: "55", IN: "18",
+    MO: "29", CT: "09", IA: "19", KS: "20", UT: "49", HI: "15",
   };
   const fips = stateFips[state] ?? "";
 
   let unemploymentRate = 3.5;
   let homePriceAppreciation = 0.035;
   let medianHomePrice = 400000;
+  let mortgageRate30yr = 6.72;
+  let cpiInflationRate = 0.03;
+  let buildingPermitGrowth = 0.05;
+  let medianRent = 1800;
+  let employmentGrowth = 0.02;
 
-  // Fetch unemployment from FRED (state-level)
-  if (fredKey && fips) {
-    try {
-      const unempSeries = `${state}UR`; // e.g. TXUR for Texas unemployment rate
-      const fredUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${unempSeries}&api_key=${encodeURIComponent(fredKey)}&file_type=json&sort_order=desc&limit=1`;
-      const fredData = await apiFetch<FredResponse>(fredUrl, fredKey);
-      const latestVal = fredData.observations?.[0]?.value;
-      if (latestVal && latestVal !== ".") {
-        unemploymentRate = parseFloat(latestVal);
-      }
-    } catch (e) {
-      console.warn("FRED unemployment fetch failed:", e);
-    }
-
-    // ZHVI (Zillow Home Value Index) from FRED is available for some metros
-    try {
-      // Try FRED's median home price for the state
-      const priceSeries = `MEDLISPRI${fips}`;
-      const prUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${priceSeries}&api_key=${encodeURIComponent(fredKey)}&file_type=json&sort_order=desc&limit=2`;
-      const prData = await apiFetch<FredResponse>(prUrl, fredKey);
-      const obs = prData.observations?.filter((o) => o.value !== ".");
-      if (obs && obs.length >= 1) {
-        medianHomePrice = parseFloat(obs[0].value);
-        if (obs.length >= 2) {
-          const prev = parseFloat(obs[1].value);
-          if (prev > 0) homePriceAppreciation = (medianHomePrice - prev) / prev;
-        }
-      }
-    } catch {
-      // Non-critical — use defaults
-    }
+  // Helper to fetch a FRED series
+  async function fetchFredSeries(seriesId: string, limit = 1): Promise<string[]> {
+    if (!fredKey) return [];
+    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${encodeURIComponent(fredKey)}&file_type=json&sort_order=desc&limit=${limit}`;
+    const data = await apiFetch<FredResponse>(url, fredKey);
+    return (data.observations ?? []).filter((o) => o.value !== ".").map((o) => o.value);
   }
 
-  // Fetch WalkScore
+  const notesSources: string[] = [];
+
+  // ─── FRED: unemployment, home price, mortgage rate, CPI, building permits, rent, employment ───
+  if (fredKey) {
+    // Unemployment (state-level)
+    try {
+      const vals = await fetchFredSeries(`${state}UR`);
+      if (vals.length > 0) { unemploymentRate = parseFloat(vals[0]); notesSources.push("Unemployment from FRED"); }
+    } catch { /* use default */ }
+
+    // Median home price + appreciation (state-level)
+    try {
+      const vals = await fetchFredSeries(`MEDLISPRI${fips}`, 2);
+      if (vals.length >= 1) {
+        medianHomePrice = parseFloat(vals[0]);
+        if (vals.length >= 2) {
+          const prev = parseFloat(vals[1]);
+          if (prev > 0) homePriceAppreciation = (medianHomePrice - prev) / prev;
+        }
+        notesSources.push("Home prices from FRED");
+      }
+    } catch { /* use default */ }
+
+    // 30-year fixed mortgage rate (national — MORTGAGE30US)
+    try {
+      const vals = await fetchFredSeries("MORTGAGE30US");
+      if (vals.length > 0) { mortgageRate30yr = parseFloat(vals[0]); notesSources.push("Mortgage rate from FRED (MORTGAGE30US)"); }
+    } catch { /* use default */ }
+
+    // CPI inflation rate (national — CPIAUCSL, compute YoY from 13 months)
+    try {
+      const vals = await fetchFredSeries("CPIAUCSL", 13);
+      if (vals.length >= 13) {
+        const latest = parseFloat(vals[0]);
+        const yearAgo = parseFloat(vals[12]);
+        if (yearAgo > 0) { cpiInflationRate = Math.round(((latest - yearAgo) / yearAgo) * 1000) / 1000; notesSources.push("CPI inflation from FRED (CPIAUCSL)"); }
+      }
+    } catch { /* use default */ }
+
+    // Building permits (national — PERMIT, compute YoY from 13 months)
+    try {
+      const vals = await fetchFredSeries("PERMIT", 13);
+      if (vals.length >= 13) {
+        const latest = parseFloat(vals[0]);
+        const yearAgo = parseFloat(vals[12]);
+        if (yearAgo > 0) { buildingPermitGrowth = Math.round(((latest - yearAgo) / yearAgo) * 1000) / 1000; notesSources.push("Building permits from FRED (PERMIT)"); }
+      }
+    } catch { /* use default */ }
+
+    // Median asking rent (national — MEDDAYONMAR or state-specific)
+    try {
+      const vals = await fetchFredSeries(`MEDRENTPRI${fips}`);
+      if (vals.length > 0) { medianRent = Math.round(parseFloat(vals[0])); notesSources.push("Median rent from FRED"); }
+    } catch { /* use default */ }
+
+    // Total nonfarm employment (state-level, compute YoY)
+    try {
+      const empSeries = `${state}NA`; // e.g. TXNA — total nonfarm, all employees
+      const vals = await fetchFredSeries(empSeries, 13);
+      if (vals.length >= 13) {
+        const latest = parseFloat(vals[0]);
+        const yearAgo = parseFloat(vals[12]);
+        if (yearAgo > 0) { employmentGrowth = Math.round(((latest - yearAgo) / yearAgo) * 1000) / 1000; notesSources.push("Employment growth from FRED"); }
+      }
+    } catch { /* use default */ }
+  } else {
+    notesSources.push("Using default economic estimates (no FRED API key)");
+  }
+
+  // ─── WalkScore ───
   let walkScore = 50;
   if (walkScoreKey && lat && lng) {
     try {
       const wsUrl = `https://api.walkscore.com/score?format=json&lat=${lat}&lon=${lng}&transit=1&bike=1&wsapikey=${encodeURIComponent(walkScoreKey)}`;
       const wsData = await apiFetch<{ walkscore?: number }>(wsUrl, walkScoreKey);
       walkScore = wsData.walkscore ?? 50;
+      notesSources.push(`WalkScore: ${walkScore}`);
     } catch {
-      // Non-critical
+      notesSources.push("WalkScore not available");
     }
   }
 
-  // Composite scores
-  const economicTrendScore = Math.round(
-    (Math.min(1, (6 - unemploymentRate) / 4) * 50 +
-      Math.min(1, homePriceAppreciation / 0.08) * 50) * 10
-  ) / 10;
+  // ─── Census Bureau: population ───
+  let population: number | undefined;
+  let populationGrowth = 0.015;
+  if (censusKey && fips) {
+    try {
+      // ACS 5-year total population by state
+      const censusUrl = `https://api.census.gov/data/2023/acs/acs5?get=B01003_001E&for=state:${fips}&key=${encodeURIComponent(censusKey)}`;
+      const censusData = await apiFetch<string[][]>(censusUrl, censusKey);
+      if (censusData.length >= 2) {
+        population = parseInt(censusData[1][0], 10);
+        notesSources.push(`Population from Census ACS (state: ${population.toLocaleString()})`);
+      }
+    } catch {
+      notesSources.push("Census population not available");
+    }
 
-  return {
-    locationKey,
-    populationGrowth: 0.015, // Would need Census API for real data
-    gdpGrowthProxy: 0.025,
-    tourismDemandIndex: 1.0,
-    medianHomePrice: Math.round(medianHomePrice),
-    homePriceAppreciation: Math.round(homePriceAppreciation * 1000) / 1000,
-    unemploymentRate,
-    crimeIndex: 35,
-    walkScore,
-    economicTrendScore,
-    marketGrowthScore: Math.round(economicTrendScore * 0.8 * 10) / 10,
-    notes: [
-      fredKey ? "Unemployment data from FRED (Federal Reserve)" : "Using default unemployment estimate",
-      walkScoreKey ? `WalkScore: ${walkScore}` : "WalkScore not available (no API key)",
-      `Location: ${city}, ${state}`,
-    ],
-  };
+    // Median household income by state
+    try {
+      const incUrl = `https://api.census.gov/data/2023/acs/acs5?get=B19013_001E&for=state:${fips}&key=${encodeURIComponent(censusKey)}`;
+      const incData = await apiFetch<string[][]>(incUrl, censusKey);
+      if (incData.length >= 2) {
+        const medIncome = parseInt(incData[1][0], 10);
+        if (medIncome > 0) notesSources.push(`Median income: $${medIncome.toLocaleString()} (Census ACS)`);
+      }
+    } catch { /* use default */ }
+  }
+
+  function buildMacroResult(): import("../models.js").MacroData {
+    const economicTrendScore = Math.round(
+      (Math.min(1, (6 - unemploymentRate) / 4) * 30 +
+        Math.min(1, homePriceAppreciation / 0.08) * 25 +
+        Math.min(1, employmentGrowth / 0.04) * 25 +
+        Math.min(1, (10 - mortgageRate30yr) / 5) * 20) * 10
+    ) / 10;
+
+    const marketGrowthScore = Math.round(
+      (Math.min(1, populationGrowth / 0.03) * 30 +
+        Math.min(1, homePriceAppreciation / 0.06) * 30 +
+        Math.min(1, employmentGrowth / 0.04) * 20 +
+        (buildingPermitGrowth > 0 ? Math.min(1, buildingPermitGrowth / 0.1) * 20 : 10)) * 10
+    ) / 10;
+
+    notesSources.push(`Location: ${city}, ${state}`);
+
+    return {
+      locationKey,
+      populationGrowth,
+      gdpGrowthProxy: Math.round(employmentGrowth * 1.2 * 1000) / 1000,
+      tourismDemandIndex: walkScore > 70 ? 8.0 : walkScore > 50 ? 7.0 : 6.0,
+      medianHomePrice: Math.round(medianHomePrice),
+      homePriceAppreciation: Math.round(homePriceAppreciation * 1000) / 1000,
+      unemploymentRate,
+      crimeIndex: 4.5, // Would need FBI UCR API
+      walkScore,
+      economicTrendScore,
+      marketGrowthScore,
+      mortgageRate30yr,
+      cpiInflationRate,
+      buildingPermitGrowth,
+      medianHouseholdIncome: undefined, // Set below if available
+      rentalVacancyRate: undefined,
+      strRegulationRisk: undefined,
+      medianRent,
+      population,
+      employmentGrowth,
+      notes: notesSources,
+    };
+  }
+
+  return buildMacroResult();
 }

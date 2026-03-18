@@ -16,12 +16,92 @@ function loadSales(): ComparableSale[] {
   return cache!;
 }
 
+// ─── RentCast Comparable Sales API ─────────────────────────
+
+interface RentCastSale {
+  formattedAddress?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  squareFootage?: number;
+  lastSalePrice?: number;
+  lastSaleDate?: string;
+  propertyType?: string;
+  yearBuilt?: number;
+  lotSize?: number;
+  condition?: string;
+}
+
+let liveSalesCache = new Map<string, { data: ComparableSale[]; ts: number }>();
+const LIVE_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
+export async function fetchLiveComparableSales(property: PropertyListing): Promise<ComparableSale[]> {
+  const apiKey = process.env.RENTCAST_API_KEY;
+  if (!apiKey) return [];
+
+  const cacheKey = `${property.city},${property.state}-${property.bedrooms}`;
+  const cached = liveSalesCache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < LIVE_CACHE_TTL) return cached.data;
+
+  try {
+    const params = new URLSearchParams({
+      city: property.city,
+      state: property.state,
+      bedrooms: String(property.bedrooms),
+      status: "Sold",
+      limit: "20",
+    });
+    const res = await fetch(`https://api.rentcast.io/v1/listings/sale?${params}`, {
+      headers: { "Accept": "application/json", "X-Api-Key": apiKey },
+    });
+    if (!res.ok) return [];
+    const listings = (await res.json()) as RentCastSale[];
+
+    const sales: ComparableSale[] = listings
+      .filter((l) => l.lastSalePrice && l.squareFootage && l.lastSaleDate)
+      .map((l, i) => ({
+        id: `rc-sale-${i}`,
+        address: l.formattedAddress ?? "",
+        city: l.city ?? property.city,
+        state: l.state ?? property.state,
+        zip: l.zipCode ?? "",
+        bedrooms: l.bedrooms ?? property.bedrooms,
+        bathrooms: l.bathrooms ?? property.bathrooms,
+        sqft: l.squareFootage!,
+        soldPrice: l.lastSalePrice!,
+        soldDate: l.lastSaleDate!,
+        qualityLevel: inferQualityLevel(l) as "original" | "updated" | "renovated",
+        pricePerSqft: Math.round(l.lastSalePrice! / l.squareFootage!),
+      }));
+
+    liveSalesCache.set(cacheKey, { data: sales, ts: Date.now() });
+    return sales;
+  } catch {
+    return [];
+  }
+}
+
+function inferQualityLevel(sale: RentCastSale): string {
+  const yr = sale.yearBuilt ?? 1980;
+  const saleYear = sale.lastSaleDate ? new Date(sale.lastSaleDate).getFullYear() : 2025;
+  const age = saleYear - yr;
+  if (age <= 5) return "renovated";
+  if (age <= 15) return "updated";
+  return "original";
+}
+
 /**
  * Get comparable sales filtered by location, size, and bed/bath similarity.
+ * If useLive is true and RENTCAST_API_KEY is set, merges live sales from RentCast.
  * Results are sorted by relevance score (recency + size + bed/bath match).
  */
-export function getComparableSales(property: PropertyListing): ComparableSale[] {
-  const all = loadSales();
+export function getComparableSales(property: PropertyListing, extraSales?: ComparableSale[]): ComparableSale[] {
+  let all = loadSales();
+  if (extraSales && extraSales.length > 0) {
+    all = [...all, ...extraSales];
+  }
   const candidates = all.filter((s) => {
     const sameCity = s.city.toLowerCase() === property.city.toLowerCase();
     const sameState = s.state.toLowerCase() === property.state.toLowerCase();
@@ -51,9 +131,10 @@ export function getComparableSales(property: PropertyListing): ComparableSale[] 
  */
 export function estimatePostRenovationValue(
   property: PropertyListing,
-  renovationCost: number
+  renovationCost: number,
+  extraSales?: ComparableSale[]
 ): ValuationResult {
-  const comps = getComparableSales(property);
+  const comps = getComparableSales(property, extraSales);
 
   // Separate by quality level
   const renovatedComps = comps.filter((c) => c.qualityLevel === "renovated");

@@ -27,24 +27,36 @@ Features:
 - Returns ADR, occupancy, reviews per comp
 - Regional seasonality curves by state (TX, TN, AZ, FL, CO, CA + default)
 
-### MacroDataProvider → FRED + WalkScore APIs
+### MacroDataProvider → FRED + WalkScore + Census Bureau APIs
 
 **Provider:** `fetchLiveMacroData()` in `backend/src/providers/liveProviders.ts`
-**APIs:** [FRED](https://fred.stlouisfed.org/docs/api/fred/) (Federal Reserve) + [WalkScore](https://www.walkscore.com/professional/api.php)
-**Env vars:** `FRED_API_KEY`, `WALKSCORE_API_KEY`
+**APIs:** [FRED](https://fred.stlouisfed.org/docs/api/fred/) (Federal Reserve) + [WalkScore](https://www.walkscore.com/professional/api.php) + [Census Bureau](https://www.census.gov/data/developers.html)
+**Env vars:** `FRED_API_KEY`, `WALKSCORE_API_KEY`, `CENSUS_API_KEY`
 
 Features:
-- State-level unemployment rate from FRED
-- Median home price and appreciation from FRED
+- 7 FRED series: unemployment (LAUST), median home price (ATNHPIUS), mortgage rate (MORTGAGE30US), CPI inflation (CPIAUCSL), building permits (PERMIT), median rent (MEDRENTX), employment (PAYEMS)
 - WalkScore by lat/lng coordinate
-- Composite economic trend scoring
+- Census Bureau: population (B01003_001E), median household income (B19013_001E) via ACS 5-year estimates
+- Composite economic trend scoring (4-factor: unemployment, appreciation, employment, mortgage)
+- Composite market growth scoring (4-factor: population, appreciation, employment, permits)
+- 30-state FIPS mapping for state-level FRED series
+
+### Comparable Sales → RentCast API
+
+**Provider:** `fetchLiveComparableSales()` in `backend/src/providers/valuationEngine.ts`
+**API:** [RentCast](https://developers.rentcast.io) — comparable sales by location
+**Env var:** `RENTCAST_API_KEY`
+
+Features:
+- Fetches recent comparable sales within 1 mile of subject property
+- Merges live sales with local data in `getComparableSales()`
+- 30-minute in-memory cache per property
+- Quality level inference from year built
+- Wired into valuation, memo, and comparison routes
 
 ## Still Using Mock/Local Data
 
 These providers still use local JSON fixtures in all modes. To replace with live APIs:
-
-### Comparable Sales / Valuation
-Replace `valuationEngine.ts` data source with an API like [ATTOM Data](https://api.attomdata.com) or [CoreLogic](https://www.corelogic.com/solutions/property-data-api.aspx).
 
 ### Operations / Bookings
 Replace `operationsDataProvider.ts` with a PMS integration: [Guesty](https://guesty.com), [Hospitable](https://hospitable.com), or [Hostaway](https://www.hostaway.com).

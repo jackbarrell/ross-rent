@@ -2,9 +2,11 @@ import { PropertyDetail } from "./PropertyDetail";
 
 export function generateStaticParams() {
   const cities = [
-    { prefix: "prop-aus", count: 5 },
+    { prefix: "prop-atx", count: 5 },
     { prefix: "prop-bna", count: 5 },
     { prefix: "prop-scf", count: 5 },
+    { prefix: "prop-den", count: 5 },
+    { prefix: "prop-tpa", count: 5 },
   ];
   const params: Array<{ id: string }> = [];
   for (const c of cities) {

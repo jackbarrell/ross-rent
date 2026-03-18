@@ -14,7 +14,7 @@ import { LiveListingProvider, LiveShortTermRentalProvider, fetchLiveMacroData } 
 import { ListingDataProvider, ShortTermRentalDataProvider } from "./providers/interfaces.js";
 import { getMacroData } from "./providers/macroDataProvider.js";
 import { inferRenovation, calculateCustomRenovation, getCostLibrary } from "./providers/renovationCostEngine.js";
-import { estimatePostRenovationValue } from "./providers/valuationEngine.js";
+import { estimatePostRenovationValue, fetchLiveComparableSales } from "./providers/valuationEngine.js";
 import { generateFinancialModel, computeIrr } from "./providers/financialModelEngine.js";
 import { getOperationsSnapshot, getPropertyIdsWithBookings } from "./providers/operationsDataProvider.js";
 import { getPropertyPL, getCompanyPL } from "./providers/accountingProvider.js";
@@ -266,7 +266,8 @@ app.get("/api/valuation/:propertyId", async (req, res, next) => {
     const property = await listingProvider.getPropertyById(req.params.propertyId);
     if (!property) { res.status(404).json({ message: "Property not found" }); return; }
     const renovationCost = Number(req.query.renovationCost ?? 0);
-    const result = estimatePostRenovationValue(property, renovationCost);
+    const extraSales = useMockData ? undefined : await fetchLiveComparableSales(property);
+    const result = estimatePostRenovationValue(property, renovationCost, extraSales);
     res.json(result);
   } catch (error) { next(error); }
 });
@@ -294,7 +295,8 @@ app.get("/api/memo/:propertyId", async (req, res, next) => {
     const locationKey = `${result.property.city},${result.property.state}`;
     const macro = getMacroData(locationKey);
     const renovation = inferRenovation(result.property);
-    const valuation = estimatePostRenovationValue(result.property, renovation.totalCapexEstimate);
+    const extraSales = useMockData ? undefined : await fetchLiveComparableSales(result.property);
+    const valuation = estimatePostRenovationValue(result.property, renovation.totalCapexEstimate, extraSales);
     const model = generateFinancialModel(result.property, result.analysis, renovation.totalCapexEstimate, macro);
     const memo = generateInvestmentMemo(result.property, result.analysis, macro, renovation, valuation, model);
     res.json(memo);
@@ -444,7 +446,8 @@ app.post("/api/compare", async (req, res, next) => {
       const locationKey = `${property.city},${property.state}`;
       const macro = getMacroData(locationKey);
       const renovation = inferRenovation(property);
-      const valuation = estimatePostRenovationValue(property, renovation.totalCapexEstimate);
+      const extraSales = useMockData ? undefined : await fetchLiveComparableSales(property);
+      const valuation = estimatePostRenovationValue(property, renovation.totalCapexEstimate, extraSales);
       const model = generateFinancialModel(property, analysis, renovation.totalCapexEstimate, macro);
       rows.push({
         propertyId: property.id,

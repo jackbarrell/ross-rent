@@ -116,6 +116,16 @@ export interface MacroData {
   walkScore: number;
   economicTrendScore: number;
   marketGrowthScore: number;
+  // Extended macro fields
+  mortgageRate30yr?: number;
+  cpiInflationRate?: number;
+  buildingPermitGrowth?: number;
+  medianHouseholdIncome?: number;
+  rentalVacancyRate?: number;
+  strRegulationRisk?: number; // 1–10 scale
+  medianRent?: number;
+  population?: number;
+  employmentGrowth?: number;
   notes: string[];
 }
 

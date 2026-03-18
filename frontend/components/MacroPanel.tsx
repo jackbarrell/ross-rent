@@ -43,6 +43,15 @@ export function MacroPanel({ locationKey }: { locationKey: string }) {
         <MetricCard label="Crime Index" value={data.crimeIndex.toFixed(1)} />
         <MetricCard label="Walk Score" value={String(data.walkScore)} />
         <MetricCard label="Economic Trend" value={`${data.economicTrendScore}/100`} />
+        {data.mortgageRate30yr != null && <MetricCard label="30-yr Mortgage" value={fmtPct(data.mortgageRate30yr / 100)} />}
+        {data.cpiInflationRate != null && <MetricCard label="CPI Inflation" value={fmtPct(data.cpiInflationRate / 100)} />}
+        {data.medianHouseholdIncome != null && <MetricCard label="Median Income" value={fmt$(data.medianHouseholdIncome)} />}
+        {data.medianRent != null && <MetricCard label="Median Rent" value={fmt$(data.medianRent)} />}
+        {data.population != null && <MetricCard label="Population" value={data.population.toLocaleString()} />}
+        {data.employmentGrowth != null && <MetricCard label="Employment Growth" value={fmtPct(data.employmentGrowth)} />}
+        {data.buildingPermitGrowth != null && <MetricCard label="Building Permits" value={fmtPct(data.buildingPermitGrowth)} />}
+        {data.rentalVacancyRate != null && <MetricCard label="Rental Vacancy" value={fmtPct(data.rentalVacancyRate)} />}
+        {data.strRegulationRisk != null && <MetricCard label="STR Reg. Risk" value={`${data.strRegulationRisk}/10`} />}
       </div>
 
       <div>
