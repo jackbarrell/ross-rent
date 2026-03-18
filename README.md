@@ -41,6 +41,16 @@ Backend:
 cp backend/.env.example backend/.env
 ```
 
+For live API mode (real data), set `USE_MOCK_DATA=false` and add your API keys:
+
+```bash
+USE_MOCK_DATA=false
+RENTCAST_API_KEY=your_key      # Property listings
+MASHVISOR_API_KEY=your_key     # STR analytics
+FRED_API_KEY=your_key          # Economic data
+WALKSCORE_API_KEY=your_key     # Walkability scores
+```
+
 Frontend:
 
 ```bash
@@ -114,29 +124,30 @@ Attractiveness score is a weighted heuristic using yield, occupancy, comp depth,
 
 ## Real vs mocked in this PoC
 
-### Real
+### Real (with `USE_MOCK_DATA=false`)
 
+- **Property listings** from RentCast API (any US market)
+- **STR rental comps** from Mashvisor API (Airbnb analytics)
+- **Macro data** from FRED (unemployment, home prices) + WalkScore
 - Running full frontend-backend workflow
-- SQLite persistence and seeded datasets
-- End-to-end analysis calculations
+- End-to-end analysis calculations with Newton-Raphson IRR
 - Dashboard rendering with supporting comparables
 
-### Mocked / simulated
+### Mock mode (default, `USE_MOCK_DATA=true`)
 
-- MLS data feed (fixture-backed)
-- Airbnb/Vrbo comparables (fixture-backed)
-- Market seasonality/risk metadata (fixture-backed)
+- SQLite persistence with seeded demo datasets
+- 3 markets: Austin TX, Nashville TN, Scottsdale AZ
+- 15 properties, 18 rental comps, 15 comparable sales
 - AI summary defaults to heuristic mode unless `OPENAI_API_KEY` is configured
 
 ## Where real integrations slot in
 
-Replace provider stubs:
+The live provider layer is already built for listings, STR analytics, and macro data. Remaining integrations to add:
 
-- `backend/src/providers/liveProviders.ts`
-  - `LiveListingProvider`
-  - `LiveShortTermRentalProvider`
-
-No frontend changes required if provider output schema is preserved.
+- **Comparable sales / valuation**: ATTOM Data or CoreLogic API
+- **Operations / bookings**: Guesty, Hospitable, or Hostaway PMS API
+- **Accounting**: QuickBooks or Xero API
+- **Renovation costs**: RSMeans construction cost API
 
 ## Biggest technical risks
 

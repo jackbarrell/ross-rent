@@ -10,7 +10,7 @@ import { initDatabase } from "./db/sqlite.js";
 import { AnalysisAssumptions, InvestmentAnalysis } from "./models.js";
 import { MockListingProvider } from "./providers/mockListingProvider.js";
 import { MockShortTermRentalProvider } from "./providers/mockStrProvider.js";
-import { LiveListingProvider, LiveShortTermRentalProvider } from "./providers/liveProviders.js";
+import { LiveListingProvider, LiveShortTermRentalProvider, fetchLiveMacroData } from "./providers/liveProviders.js";
 import { ListingDataProvider, ShortTermRentalDataProvider } from "./providers/interfaces.js";
 import { getMacroData } from "./providers/macroDataProvider.js";
 import { inferRenovation, calculateCustomRenovation, getCostLibrary } from "./providers/renovationCostEngine.js";
@@ -31,13 +31,13 @@ const useMockData = (process.env.USE_MOCK_DATA ?? "true").toLowerCase() === "tru
 app.use(cors({ origin: frontendOrigin === "*" ? true : frontendOrigin }));
 app.use(express.json());
 
-const db = initDatabase();
+const db = useMockData ? initDatabase() : null;
 
 const listingProvider: ListingDataProvider = useMockData
-  ? new MockListingProvider(db)
+  ? new MockListingProvider(db!)
   : new LiveListingProvider();
 const strProvider: ShortTermRentalDataProvider = useMockData
-  ? new MockShortTermRentalProvider(db)
+  ? new MockShortTermRentalProvider(db!)
   : new LiveShortTermRentalProvider();
 
 const analysisEngine = new AnalysisEngine();
@@ -211,13 +211,29 @@ app.get("/api/ranking", async (req, res, next) => {
 
 // ─── Macro Data ────────────────────────────────────────────
 
-app.get("/api/macro/:locationKey", (req, res) => {
-  const data = getMacroData(decodeURIComponent(req.params.locationKey));
-  if (!data) {
-    res.status(404).json({ message: "Macro data not found for location" });
-    return;
-  }
-  res.json(data);
+app.get("/api/macro/:locationKey", async (req, res, next) => {
+  try {
+    const locationKey = decodeURIComponent(req.params.locationKey);
+    if (useMockData) {
+      const data = getMacroData(locationKey);
+      if (!data) {
+        res.status(404).json({ message: "Macro data not found for location" });
+        return;
+      }
+      res.json(data);
+    } else {
+      // In live mode, fetch from FRED + WalkScore
+      // Try to get lat/lng from a cached property for WalkScore
+      const properties = await listingProvider.searchProperties(locationKey);
+      const sampleProp = properties[0];
+      const data = await fetchLiveMacroData(locationKey, sampleProp?.lat, sampleProp?.lng);
+      if (!data) {
+        res.status(404).json({ message: "Could not fetch macro data" });
+        return;
+      }
+      res.json(data);
+    }
+  } catch (error) { next(error); }
 });
 
 // ─── Renovation Cost Engine ────────────────────────────────
