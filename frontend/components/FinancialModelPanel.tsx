@@ -82,6 +82,42 @@ export function FinancialModelPanel({ propertyId }: { propertyId: string }) {
         </table>
       </div>
 
+      {/* Equity Build-Up & Cashflow Chart */}
+      <div className="chartContainer">
+        <h3>Equity Build-Up & Cumulative Cashflow</h3>
+        <div className="barChart">
+          {model.years.map((y) => {
+            const maxVal = Math.max(...model.years.map((yr) => Math.max(yr.equity, Math.abs(yr.cumulativeCashflow))));
+            const equityPct = maxVal > 0 ? (y.equity / maxVal) * 100 : 0;
+            const cashflowPct = maxVal > 0 ? (Math.abs(y.cumulativeCashflow) / maxVal) * 100 : 0;
+            return (
+              <div key={y.year} className="barGroup">
+                <div className="barLabels">
+                  <span className="barValue">{fmt$(y.equity)}</span>
+                  <span className="barValueSecondary" style={{ color: y.cumulativeCashflow >= 0 ? "var(--green)" : "var(--red)" }}>
+                    {fmt$(y.cumulativeCashflow)}
+                  </span>
+                </div>
+                <div className="barTrack">
+                  <div className="barFill barFillAccent" style={{ width: `${equityPct}%` }} />
+                </div>
+                <div className="barTrack">
+                  <div
+                    className={`barFill ${y.cumulativeCashflow >= 0 ? "barFillGreen" : "barFillRed"}`}
+                    style={{ width: `${cashflowPct}%` }}
+                  />
+                </div>
+                <span className="barLabel">Yr {y.year}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="chartLegend">
+          <span><span className="legendDot" style={{ background: "var(--accent)" }} /> Equity</span>
+          <span><span className="legendDot" style={{ background: "var(--green)" }} /> Cum. Cashflow</span>
+        </div>
+      </div>
+
       {/* Refinance Scenario */}
       <div className="totalBar">
         <strong>Refinance Scenario (Year {model.refinanceScenario.refinanceYear}):</strong>{" "}

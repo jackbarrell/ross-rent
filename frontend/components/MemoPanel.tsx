@@ -27,6 +27,34 @@ export function MemoPanel({ propertyId }: { propertyId: string }) {
     URL.revokeObjectURL(url);
   };
 
+  const handlePdf = () => {
+    if (!memo) return;
+    const html = memo.sections.map((s) => {
+      const content = s.content
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+        .split("\n")
+        .map((line) => {
+          if (line.startsWith("|")) return `<code>${line}</code><br/>`;
+          if (line.startsWith("- ")) return `<li>${line.substring(2)}</li>`;
+          if (line.trim() === "") return "<br/>";
+          return `<p style="margin:2px 0">${line}</p>`;
+        })
+        .join("");
+      return `<h2 style="color:#0ea5e9;border-bottom:1px solid #ddd;padding-bottom:4px;margin-top:20px">${s.title}</h2>${content}`;
+    }).join("");
+
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    printWindow.document.write(`<!DOCTYPE html><html><head><title>Investment Memo – ${propertyId}</title>
+<style>body{font-family:Inter,system-ui,sans-serif;max-width:800px;margin:0 auto;padding:40px;color:#1a1a2e;line-height:1.6;font-size:13px}
+h1{font-size:20px;margin-bottom:4px}h2{font-size:15px}code{font-size:11px;display:block;margin:2px 0}li{margin-left:16px}
+@media print{body{padding:20px}}</style></head>
+<body><h1>Investment Memo</h1><p style="color:#666">Generated: ${new Date(memo.generatedAt).toLocaleDateString()} · Property: ${propertyId}</p>${html}</body></html>`);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 300);
+  };
+
   if (loading) return <p>Generating investment memo…</p>;
   if (!memo) return <p className="error">Could not generate memo.</p>;
 
@@ -38,8 +66,11 @@ export function MemoPanel({ propertyId }: { propertyId: string }) {
           <button className="btnSecondary" onClick={() => setShowMarkdown(!showMarkdown)}>
             {showMarkdown ? "Formatted" : "Raw Markdown"}
           </button>
-          <button className="btnPrimary" onClick={handleExport}>
-            Export Memo ↓
+          <button className="btnSecondary" onClick={handleExport}>
+            Export .md ↓
+          </button>
+          <button className="btnPrimary" onClick={handlePdf}>
+            Export PDF ↓
           </button>
         </div>
       </div>

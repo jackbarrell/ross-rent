@@ -10,6 +10,8 @@ export interface PropertyListing {
   listPrice: number;
   propertyType: string;
   daysOnMarket: number;
+  lat: number;
+  lng: number;
   imageUrl?: string;
   description?: string;
 }

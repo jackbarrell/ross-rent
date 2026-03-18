@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { LocationSelector } from "@/components/LocationSelector";
 import { PropertyCard } from "@/components/PropertyCard";
+import { PropertyMap } from "@/components/PropertyMap";
 import { fetchLocations, fetchProperties, fetchRanking } from "@/lib/api";
 import { PropertyListing, RankedProperty } from "@/lib/types";
 import Link from "next/link";
 
 type SortKey = "price-asc" | "price-desc" | "beds-desc" | "dom-asc";
-type ViewMode = "grid" | "ranking";
+type ViewMode = "grid" | "ranking" | "map";
 
 export default function HomePage() {
   const [locations, setLocations] = useState<string[]>([]);
@@ -98,6 +99,12 @@ export default function HomePage() {
             >
               AI Ranking
             </button>
+            <button
+              className={`tabBtn ${viewMode === "map" ? "tabActive" : ""}`}
+              onClick={() => setViewMode("map")}
+            >
+              Map View
+            </button>
           </div>
           {viewMode === "grid" && (
             <div className="sortRow">
@@ -182,6 +189,10 @@ export default function HomePage() {
               </table>
             </div>
           </>
+        )}
+
+        {viewMode === "map" && !loading && (
+          <PropertyMap properties={properties} />
         )}
       </section>
     </div>
