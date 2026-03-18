@@ -20,23 +20,30 @@ export function PropertyCard({ property }: { property: PropertyListing }) {
     fetchDealScore(property.id).then(setScore).catch(() => {});
   }, [property.id]);
 
+  const gradeColor = score ? gradeColors[score.grade] || "#888" : "#888";
+
   return (
     <Link href={`/property/${property.id}`} className="card linkCard cardWithImage">
-      {property.imageUrl && (
-        <div className="cardImageWrap">
+      <div className="cardImageWrap">
+        {property.imageUrl ? (
           <img
             src={property.imageUrl}
             alt={property.address}
             className="cardImage"
             loading="lazy"
           />
-          {score && (
-            <span className="cardImageGrade" style={{ background: gradeColors[score.grade] || "#888" }}>
-              {score.grade as string}
-            </span>
-          )}
-        </div>
-      )}
+        ) : (
+          <div className="cardImageFallback">
+            <span className="cardImageFallbackIcon">⌂</span>
+          </div>
+        )}
+        {score && (
+          <span className="cardImageGrade" style={{ background: gradeColor, boxShadow: `0 2px 12px ${gradeColor}44` }}>
+            {score.grade as string}
+          </span>
+        )}
+        <div className="cardImageOverlay" />
+      </div>
       <div className="cardBody">
         <div className="cardHeader">
           <h3>{property.address}</h3>
@@ -48,9 +55,9 @@ export function PropertyCard({ property }: { property: PropertyListing }) {
           <div className="cardScoreRow">
             <span className="cardScoreLabel">Score</span>
             <div className="cardScoreBarTrack">
-              <div className="cardScoreBarFill" style={{ width: `${score.overallScore}%`, background: gradeColors[score.grade] || "#888" }} />
+              <div className="cardScoreBarFill" style={{ width: `${score.overallScore}%`, background: gradeColor, boxShadow: `0 0 8px ${gradeColor}55` }} />
             </div>
-            <span className="cardScoreValue">{score.overallScore}/100</span>
+            <span className="cardScoreValue" style={{ color: gradeColor }}>{score.overallScore}/100</span>
           </div>
         )}
         <div className="cardFooter">

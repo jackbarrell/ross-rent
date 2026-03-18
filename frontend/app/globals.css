@@ -96,7 +96,19 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   transition: all 0.15s; text-decoration: none;
 }
 .navLink:hover { color: var(--text); background: var(--accent-light); text-decoration: none; }
-.navLinkActive { color: var(--accent); background: var(--accent-light); }
+.navLinkActive {
+  color: var(--accent); background: var(--accent-light);
+  position: relative;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+.navLinkActive::after {
+  content: "";
+  position: absolute; bottom: -1px; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
 .navAiBadge {
   font-size: 0.6rem; font-weight: 700;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
@@ -156,6 +168,23 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   line-height: 1.65;
   position: relative; z-index: 1;
 }
+.heroStats {
+  display: flex; gap: 32px; margin-top: 24px;
+  position: relative; z-index: 1;
+}
+.heroStat {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.heroStatValue {
+  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.heroStatLabel {
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted);
+}
 
 /* ─── Panel ─────────────────────────────────────────────── */
 .panel {
@@ -203,9 +232,9 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
 }
 .linkCard { cursor: pointer; }
 .linkCard:hover {
-  border-color: rgba(56,189,248,.2);
-  box-shadow: var(--shadow-glow);
-  transform: translateY(-3px);
+  border-color: rgba(56,189,248,.25);
+  box-shadow: 0 12px 32px rgba(56,189,248,.12), 0 0 0 1px rgba(56,189,248,.08);
+  transform: translateY(-5px);
   text-decoration: none;
 }
 .linkCard:hover::before { opacity: 1; }
@@ -244,7 +273,12 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   margin-top: auto; padding-top: 12px;
   border-top: 1px solid var(--border);
 }
-.cardFooter strong { color: var(--accent); font-size: 1.1rem; font-weight: 800; }
+.cardFooter strong {
+  font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
 /* ─── Card Image (Property Photos) ─────────────────────── */
 .cardWithImage {
@@ -256,7 +290,7 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
 .cardImageWrap {
   position: relative;
   width: 100%;
-  height: 180px;
+  height: 200px;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -264,22 +298,43 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.35s ease;
+  transition: transform 0.4s ease, filter 0.4s ease;
 }
 .linkCard:hover .cardImage {
-  transform: scale(1.06);
+  transform: scale(1.08);
+  filter: brightness(1.05);
+}
+.cardImageFallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0c1929 0%, #131b3a 50%, #0f1f3d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cardImageFallbackIcon {
+  font-size: 3rem;
+  color: rgba(56,189,248,.15);
+}
+.cardImageOverlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(to top, rgba(10,14,26,.7) 0%, transparent 100%);
+  pointer-events: none;
 }
 .cardImageGrade {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 0.78rem;
+  top: 12px;
+  right: 12px;
+  font-size: 0.8rem;
   font-weight: 900;
   color: #0a0f1c;
-  padding: 4px 10px;
-  border-radius: 6px;
-  letter-spacing: 0.02em;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  padding: 5px 12px;
+  border-radius: 8px;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 2px rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.2);
 }
 .cardBody {
   padding: 16px 20px 20px;
@@ -296,11 +351,20 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--border);
+  position: relative;
 }
 .propertyHeroImage img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.propertyHeroImage::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(to top, rgba(10,14,26,.6) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 /* ─── Score Badges ──────────────────────────────────────── */
@@ -330,6 +394,15 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
 .metricCard:hover::after { opacity: 1; }
 .metricLabel { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
 .metricValue { font-weight: 800; font-size: 1.25rem; margin-top: 6px; letter-spacing: -0.02em; color: var(--text); }
+
+/* Semantic MetricCard tones */
+.metricCard--positive { border-left: 3px solid var(--green); }
+.metricCard--positive .metricValue { color: var(--green); }
+.metricCard--negative { border-left: 3px solid var(--red); }
+.metricCard--negative .metricValue { color: var(--red); }
+.metricCard--info { border-left: 3px solid var(--accent); }
+.metricCard--info .metricValue { color: var(--accent); }
+.metricCard--neutral { border-left: 3px solid var(--border); }
 
 /* ─── Property Header ──────────────────────────────────── */
 .propertyHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
@@ -541,6 +614,26 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
 .tabBar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 .tabBar::-webkit-scrollbar-track { background: transparent; }
 
+/* ─── Grouped Tab Bar ───────────────────────────────────── */
+.tabBarGrouped {
+  display: flex; gap: 16px; overflow-x: auto; padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+.tabBarGrouped::-webkit-scrollbar { height: 4px; }
+.tabBarGrouped::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.tabBarGrouped::-webkit-scrollbar-track { background: transparent; }
+.tabGroup {
+  display: flex; flex-direction: column; gap: 6px;
+  border-right: 1px solid var(--border-light);
+  padding-right: 16px;
+}
+.tabGroup:last-child { border-right: none; padding-right: 0; }
+.tabGroupLabel {
+  font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); padding-left: 2px;
+}
+.tabGroupTabs { display: flex; gap: 4px; }
+
 .panelStack { display: flex; flex-direction: column; gap: 18px; }
 .cardSelected {
   border-color: var(--accent);
@@ -646,6 +739,23 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
 
 .fadeIn { animation: fadeIn 0.3s ease-out; }
 
+/* ─── Staggered Grid Animation ──────────────────────────── */
+.grid > * {
+  animation: fadeInUp 0.35s ease-out both;
+}
+.grid > *:nth-child(1) { animation-delay: 0s; }
+.grid > *:nth-child(2) { animation-delay: 0.05s; }
+.grid > *:nth-child(3) { animation-delay: 0.1s; }
+.grid > *:nth-child(4) { animation-delay: 0.15s; }
+.grid > *:nth-child(5) { animation-delay: 0.2s; }
+.grid > *:nth-child(6) { animation-delay: 0.25s; }
+.grid > *:nth-child(n+7) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ─── Responsive ────────────────────────────────────────── */
 @media (max-width: 900px) {
   .twoCol { grid-template-columns: 1fr; }
@@ -654,6 +764,10 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   .scenarioGrid { grid-template-columns: 1fr 1fr; }
   .searchRow { flex-direction: column; align-items: stretch; }
   .tabBar { flex-wrap: wrap; }
+  .tabBarGrouped { flex-wrap: wrap; gap: 12px; }
+  .tabGroup { border-right: none; padding-right: 0; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; }
+  .tabGroup:last-child { border-bottom: none; padding-bottom: 0; }
+  .tabGroupTabs { flex-wrap: wrap; }
   .heroNav { flex-wrap: wrap; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .topNavInner { flex-wrap: wrap; height: auto; padding: 12px 0; gap: 8px; }
@@ -1030,25 +1144,28 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   gap: 8px;
   margin: 8px 0 4px;
   font-size: 0.72rem;
+  background: rgba(56,189,248,.03);
+  padding: 8px 10px;
+  border-radius: 6px;
 }
 .cardScoreLabel { color: var(--muted); }
 .cardScoreBarTrack {
   flex: 1;
-  height: 5px;
+  height: 7px;
   background: var(--border);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 .cardScoreBarFill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: width 0.4s ease;
 }
 .cardScoreValue {
-  font-weight: 600;
-  color: var(--text);
-  min-width: 48px;
+  font-weight: 700;
+  min-width: 52px;
   text-align: right;
+  font-size: 0.78rem;
 }
 
 /* ===== Monte Carlo Panel ===== */

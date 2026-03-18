@@ -76,6 +76,22 @@ export default function HomePage() {
           Discover high-yield short-term rental opportunities. Our AI engine analyzes market comps,
           macro trends, renovation costs, and financial models to surface the best investment deals.
         </p>
+        {!loading && properties.length > 0 && (
+          <div className="heroStats">
+            <div className="heroStat">
+              <span className="heroStatValue">{properties.length}</span>
+              <span className="heroStatLabel">Properties</span>
+            </div>
+            <div className="heroStat">
+              <span className="heroStatValue">{locations.length}</span>
+              <span className="heroStatLabel">Markets</span>
+            </div>
+            <div className="heroStat">
+              <span className="heroStatValue">13</span>
+              <span className="heroStatLabel">AI Models</span>
+            </div>
+          </div>
+        )}
       </header>
 
       <LocationSelector

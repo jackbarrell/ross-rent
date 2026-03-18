@@ -24,20 +24,45 @@ function fmtPct(n: number) { return (n * 100).toFixed(1) + "%"; }
 
 type Tab = "market" | "macro" | "renovation" | "valuation" | "financials" | "waterfall" | "sensitivity" | "heatmap" | "montecarlo" | "dealscore" | "memo" | "operations" | "forecast";
 
-const TABS: { key: Tab; label: string; ai?: boolean }[] = [
-  { key: "market", label: "STR Market" },
-  { key: "dealscore", label: "Deal Score", ai: true },
-  { key: "macro", label: "Macro Data" },
-  { key: "renovation", label: "Renovation", ai: true },
-  { key: "valuation", label: "Valuation" },
-  { key: "financials", label: "Financials" },
-  { key: "waterfall", label: "Waterfall" },
-  { key: "sensitivity", label: "Sensitivity" },
-  { key: "heatmap", label: "Heatmap" },
-  { key: "montecarlo", label: "Monte Carlo", ai: true },
-  { key: "memo", label: "Memo", ai: true },
-  { key: "operations", label: "Operations" },
-  { key: "forecast", label: "Forecast", ai: true },
+interface TabGroup {
+  label: string;
+  tabs: { key: Tab; label: string; ai?: boolean }[];
+}
+
+const TAB_GROUPS: TabGroup[] = [
+  {
+    label: "Analysis",
+    tabs: [
+      { key: "market", label: "STR Market" },
+      { key: "dealscore", label: "Deal Score", ai: true },
+      { key: "macro", label: "Macro" },
+    ],
+  },
+  {
+    label: "Investment",
+    tabs: [
+      { key: "renovation", label: "Renovation", ai: true },
+      { key: "valuation", label: "Valuation" },
+      { key: "financials", label: "Financials" },
+    ],
+  },
+  {
+    label: "Risk Models",
+    tabs: [
+      { key: "waterfall", label: "Waterfall" },
+      { key: "sensitivity", label: "Sensitivity" },
+      { key: "heatmap", label: "Heatmap" },
+      { key: "montecarlo", label: "Monte Carlo", ai: true },
+    ],
+  },
+  {
+    label: "Operations",
+    tabs: [
+      { key: "operations", label: "Ops" },
+      { key: "forecast", label: "Forecast", ai: true },
+      { key: "memo", label: "Memo", ai: true },
+    ],
+  },
 ];
 
 export function PropertyDetail({ id }: { id: string }) {
@@ -144,26 +169,33 @@ export function PropertyDetail({ id }: { id: string }) {
           {property.description && <p className="descText">{property.description}</p>}
 
           <div className="metricsGrid" style={{ marginTop: 16 }}>
-            <MetricCard label="AI Score" value={`${a.attractivenessScore} / 100`} />
-            <MetricCard label="Yield" value={fmtPct(a.yieldProxy)} />
-            <MetricCard label="Est. ADR" value={fmt$(a.estimatedAdr)} />
-            <MetricCard label="Monthly Rev." value={fmt$(a.estimatedMonthlyGrossRevenue)} />
-            <MetricCard label="Annual NOI" value={fmt$(a.estimatedNetOperatingIncome)} />
-            <MetricCard label="Confidence" value={a.confidence} />
+            <MetricCard label="AI Score" value={`${a.attractivenessScore} / 100`} tone={a.attractivenessScore >= 60 ? "positive" : a.attractivenessScore >= 40 ? "neutral" : "negative"} />
+            <MetricCard label="Yield" value={fmtPct(a.yieldProxy)} tone={a.yieldProxy >= 0.06 ? "positive" : a.yieldProxy >= 0.03 ? "neutral" : "negative"} />
+            <MetricCard label="Est. ADR" value={fmt$(a.estimatedAdr)} tone="info" />
+            <MetricCard label="Monthly Rev." value={fmt$(a.estimatedMonthlyGrossRevenue)} tone="positive" />
+            <MetricCard label="Annual NOI" value={fmt$(a.estimatedNetOperatingIncome)} tone={a.estimatedNetOperatingIncome > 0 ? "positive" : "negative"} />
+            <MetricCard label="Confidence" value={a.confidence} tone={a.confidence === "High" ? "positive" : a.confidence === "Medium" ? "neutral" : "negative"} />
           </div>
         </section>
 
-        {/* ─── Tab Bar ─── */}
-        <div className="tabBar">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              className={`tabBtn ${activeTab === t.key ? "tabActive" : ""}`}
-              onClick={() => setActiveTab(t.key)}
-            >
-              {t.ai && <span className="pillAi" style={{ marginRight: 4, padding: "1px 4px", fontSize: "0.55rem" }}>AI</span>}
-              {t.label}
-            </button>
+        {/* ─── Tab Bar (Grouped) ─── */}
+        <div className="tabBarGrouped">
+          {TAB_GROUPS.map((group) => (
+            <div key={group.label} className="tabGroup">
+              <span className="tabGroupLabel">{group.label}</span>
+              <div className="tabGroupTabs">
+                {group.tabs.map((t) => (
+                  <button
+                    key={t.key}
+                    className={`tabBtn ${activeTab === t.key ? "tabActive" : ""}`}
+                    onClick={() => setActiveTab(t.key)}
+                  >
+                    {t.ai && <span className="pillAi" style={{ marginRight: 4, padding: "1px 4px", fontSize: "0.55rem" }}>AI</span>}
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
