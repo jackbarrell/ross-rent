@@ -367,6 +367,40 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   pointer-events: none;
 }
 
+/* ─── Listing Links ─────────────────────────────────────── */
+.listingLinks {
+  display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+}
+.listingLink {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: var(--radius-sm);
+  font-size: 0.78rem; font-weight: 600;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.listingLink:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+  text-decoration: none;
+}
+.listingLinkIcon {
+  font-weight: 800; font-size: 0.85rem;
+  color: var(--accent);
+}
+.listingLinkAirbnb {
+  border-color: rgba(255,56,92,.2);
+  color: #ff385c;
+}
+.listingLinkAirbnb:hover {
+  border-color: #ff385c;
+  background: rgba(255,56,92,.08);
+  color: #ff385c;
+}
+
 /* ─── Score Badges ──────────────────────────────────────── */
 .scoreBadge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-weight: 700; font-size: 0.82rem; }
 .scoreGood { background: var(--green-bg); color: var(--green); border: 1px solid rgba(52,211,153,.2); box-shadow: 0 0 8px var(--green-glow); }

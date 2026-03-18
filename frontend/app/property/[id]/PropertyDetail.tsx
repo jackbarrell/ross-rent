@@ -22,6 +22,21 @@ import { AnalysisAssumptions, DealStatus, InvestmentAnalysis, PropertyListing } 
 function fmt$(n: number) { return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 }); }
 function fmtPct(n: number) { return (n * 100).toFixed(1) + "%"; }
 
+function getListingLinks(address: string, city: string, state: string, zip: string) {
+  const fullAddr = `${address}, ${city}, ${state} ${zip}`;
+  const q = encodeURIComponent(fullAddr);
+  const slug = `${address} ${city} ${state} ${zip}`.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  return [
+    { label: "Zillow", icon: "Z", url: `https://www.zillow.com/homes/${slug}_rb/` },
+    { label: "Redfin", icon: "R", url: `https://www.redfin.com/search#query=${q}` },
+    { label: "Realtor", icon: "⌂", url: `https://www.realtor.com/realestateandhomes-search/${encodeURIComponent(city + "_" + state + "_" + zip)}` },
+  ];
+}
+
+function getAirbnbSearchLink(city: string, state: string) {
+  return `https://www.airbnb.com/s/${encodeURIComponent(city + ", " + state)}/homes`;
+}
+
 type Tab = "market" | "macro" | "renovation" | "valuation" | "financials" | "waterfall" | "sensitivity" | "heatmap" | "montecarlo" | "dealscore" | "memo" | "operations" | "forecast";
 
 interface TabGroup {
@@ -122,6 +137,8 @@ export function PropertyDetail({ id }: { id: string }) {
   const a = analysis;
   const cb = a.costBreakdown;
   const locationKey = `${property.city},${property.state}`;
+  const listingLinks = getListingLinks(property.address, property.city, property.state, property.zip);
+  const airbnbLink = getAirbnbSearchLink(property.city, property.state);
 
   return (
     <div className="pageStack fadeIn">
@@ -141,6 +158,16 @@ export function PropertyDetail({ id }: { id: string }) {
               <p className="propertySpecs">
                 {property.bedrooms} bd · {property.bathrooms} ba · {property.sqft.toLocaleString()} sqft · {property.daysOnMarket} DOM
               </p>
+              <div className="listingLinks">
+                {listingLinks.map((link) => (
+                  <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer" className="listingLink">
+                    <span className="listingLinkIcon">{link.icon}</span> {link.label}
+                  </a>
+                ))}
+                <a href={airbnbLink} target="_blank" rel="noopener noreferrer" className="listingLink listingLinkAirbnb">
+                  ✦ Airbnb comps
+                </a>
+              </div>
             </div>
             <div className="priceBlock">
               <span className="bigPrice">{fmt$(property.listPrice)}</span>
@@ -299,7 +326,12 @@ export function PropertyDetail({ id }: { id: string }) {
 
             {/* Comparables Table */}
             <section className="panel">
-              <h2>Comparable Rentals</h2>
+              <div className="rowBetween">
+                <h2>Comparable Rentals</h2>
+                <a href={airbnbLink} target="_blank" rel="noopener noreferrer" className="btnSecondary" style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
+                  ✦ Browse on Airbnb
+                </a>
+              </div>
               <div className="tableWrap">
                 <table className="dataTable">
                   <thead>
