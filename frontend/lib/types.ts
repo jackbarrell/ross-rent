@@ -52,6 +52,7 @@ export interface CostBreakdown {
 export interface AnalysisAssumptions {
   baseMonthlyDays: number;
   vacancyBuffer: number;
+  adrOverride?: number;
   managementFeeRate: number;
   maintenanceRate: number;
   utilitiesMonthly: number;

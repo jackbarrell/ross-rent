@@ -28,10 +28,15 @@ export function getPropertyPL(
     .filter((e) => e.type === "expense")
     .reduce((s, e) => s + e.amount, 0);
 
+  const dates = entries.map((e) => e.date).sort();
+  const period = dates.length > 0
+    ? `${dates[0].substring(0, 7)} to ${dates[dates.length - 1].substring(0, 7)}`
+    : "N/A";
+
   return {
     propertyId,
     address: addressLookup ? addressLookup(propertyId) : propertyId,
-    period: "2025-07 to 2025-12",
+    period,
     totalIncome: income,
     totalExpenses: expenses,
     netIncome: income - expenses,
@@ -49,8 +54,13 @@ export function getCompanyPL(
   const totalIncome = properties.reduce((s, p) => s + p.totalIncome, 0);
   const totalExpenses = properties.reduce((s, p) => s + p.totalExpenses, 0);
 
+  const allDates = all.map((e) => e.date).sort();
+  const period = allDates.length > 0
+    ? `${allDates[0].substring(0, 7)} to ${allDates[allDates.length - 1].substring(0, 7)}`
+    : "N/A";
+
   return {
-    period: "2025-07 to 2025-12",
+    period,
     totalIncome,
     totalExpenses,
     netIncome: totalIncome - totalExpenses,

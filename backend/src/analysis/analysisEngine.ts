@@ -41,9 +41,9 @@ export class AnalysisEngine {
     const bedroomAdjustment = 1 + (property.bedrooms - 3) * 0.04;
     const typeAdjustment = property.propertyType === "Condo" ? 0.95 : property.propertyType === "Townhome" ? 0.98 : 1;
 
-    const estimatedAdr = round2(
-      marketMetrics.estimatedAdr * bedroomAdjustment * typeAdjustment * assumptions.seasonalityIndex
-    );
+    const estimatedAdr = assumptions.adrOverride
+      ? round2(assumptions.adrOverride)
+      : round2(marketMetrics.estimatedAdr * bedroomAdjustment * typeAdjustment * assumptions.seasonalityIndex);
 
     const estimatedOccupancyRate = Number(
       clamp(marketMetrics.estimatedOccupancyRate - assumptions.vacancyBuffer, 0.35, 0.9).toFixed(4)

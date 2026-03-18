@@ -13,12 +13,29 @@ const dbPath = path.join(dbDir, "ross_rent.sqlite");
 const propertyPath = path.join(workspaceRoot, "data", "property_listings.json");
 const compsPath = path.join(workspaceRoot, "data", "rental_comparables.json");
 
-export const initDatabase = () => {
+let _db: InstanceType<typeof Database> | null = null;
+
+function getDb(): InstanceType<typeof Database> {
+  if (_db) return _db;
   if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
   }
+  _db = new Database(dbPath);
+  // Always create deals table
+  _db.exec(`
+    CREATE TABLE IF NOT EXISTS deals (
+      propertyId TEXT PRIMARY KEY,
+      status TEXT NOT NULL DEFAULT 'watching',
+      notes TEXT NOT NULL DEFAULT '',
+      savedAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    )
+  `);
+  return _db;
+}
 
-  const db = new Database(dbPath);
+export const initDatabase = () => {
+  const db = getDb();
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS properties (
@@ -101,3 +118,32 @@ export const initDatabase = () => {
 
   return db;
 };
+
+// ─── Deal Pipeline (SQLite-persisted) ──────────────────────
+
+import { DealStatus, SavedDeal } from "../models.js";
+
+export function getAllDeals(): SavedDeal[] {
+  const db = getDb();
+  return db.prepare("SELECT propertyId, status, notes, savedAt, updatedAt FROM deals ORDER BY updatedAt DESC").all() as SavedDeal[];
+}
+
+export function upsertDeal(propertyId: string, status: DealStatus, notes: string): SavedDeal {
+  const db = getDb();
+  const now = new Date().toISOString();
+  const existing = db.prepare("SELECT savedAt FROM deals WHERE propertyId = ?").get(propertyId) as { savedAt: string } | undefined;
+  const savedAt = existing?.savedAt ?? now;
+
+  db.prepare(`
+    INSERT INTO deals (propertyId, status, notes, savedAt, updatedAt)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(propertyId) DO UPDATE SET status = excluded.status, notes = excluded.notes, updatedAt = excluded.updatedAt
+  `).run(propertyId, status, notes, savedAt, now);
+
+  return { propertyId, status, notes, savedAt, updatedAt: now };
+}
+
+export function deleteDeal(propertyId: string): void {
+  const db = getDb();
+  db.prepare("DELETE FROM deals WHERE propertyId = ?").run(propertyId);
+}

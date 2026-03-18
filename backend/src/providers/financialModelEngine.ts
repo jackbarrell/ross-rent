@@ -43,8 +43,16 @@ export function computeIrr(cashflows: number[], maxIter = 100, tolerance = 1e-6)
     }
     if (Math.abs(dNpv) < 1e-12) break;
     const newGuess = guess - npv / dNpv;
+    if (!isFinite(newGuess) || newGuess < -1) break;
     if (Math.abs(newGuess - guess) < tolerance) return newGuess;
     guess = newGuess;
+  }
+  // Fallback: simple annualised return if Newton-Raphson didn't converge
+  if (!isFinite(guess) || guess < -1 || guess > 10) {
+    const totalReturn = cashflows.reduce((s, c) => s + c, 0);
+    const initial = Math.abs(cashflows[0]);
+    if (initial === 0) return 0;
+    return Math.pow(1 + totalReturn / initial, 1 / (cashflows.length - 1)) - 1;
   }
   return guess;
 }

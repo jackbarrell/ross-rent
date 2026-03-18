@@ -6,8 +6,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { AnalysisEngine } from "./analysis/analysisEngine.js";
 import { AiSummaryService } from "./ai/summary.js";
-import { initDatabase } from "./db/sqlite.js";
-import { AnalysisAssumptions, DealStatus, InvestmentAnalysis, SavedDeal, SensitivityResult } from "./models.js";
+import { initDatabase, getAllDeals, upsertDeal, deleteDeal } from "./db/sqlite.js";
+import { AnalysisAssumptions, DealStatus, InvestmentAnalysis, SensitivityResult } from "./models.js";
 import { MockListingProvider } from "./providers/mockListingProvider.js";
 import { MockShortTermRentalProvider } from "./providers/mockStrProvider.js";
 import { LiveListingProvider, LiveShortTermRentalProvider, fetchLiveMacroData } from "./providers/liveProviders.js";
@@ -401,31 +401,21 @@ app.get("/api/portfolio", async (_req, res, next) => {
   } catch (error) { next(error); }
 });
 
-// ─── Deal Pipeline (in-memory store for PoC) ──────────────
-
-const dealStore = new Map<string, SavedDeal>();
+// ─── Deal Pipeline (SQLite-persisted) ──────────────────────
 
 app.get("/api/deals", (_req, res) => {
-  res.json({ deals: Array.from(dealStore.values()) });
+  res.json({ deals: getAllDeals() });
 });
 
 app.post("/api/deals", (req, res) => {
   const { propertyId, status, notes } = req.body as { propertyId: string; status?: DealStatus; notes?: string };
   if (!propertyId) { res.status(400).json({ message: "propertyId required" }); return; }
-  const now = new Date().toISOString();
-  const deal: SavedDeal = {
-    propertyId,
-    status: status ?? "watching",
-    notes: notes ?? "",
-    savedAt: dealStore.get(propertyId)?.savedAt ?? now,
-    updatedAt: now,
-  };
-  dealStore.set(propertyId, deal);
+  const deal = upsertDeal(propertyId, status ?? "watching", notes ?? "");
   res.json(deal);
 });
 
 app.delete("/api/deals/:propertyId", (req, res) => {
-  dealStore.delete(req.params.propertyId);
+  deleteDeal(req.params.propertyId);
   res.json({ ok: true });
 });
 
@@ -575,6 +565,8 @@ app.post("/api/forecast-vs-actual/:propertyId/apply", async (req, res, next) => 
     for (const adj of comparison.adjustedAssumptions) {
       if (adj.field === "vacancyBuffer") {
         calibratedOverrides.vacancyBuffer = adj.suggestedValue;
+      } else if (adj.field === "estimatedAdr") {
+        calibratedOverrides.adrOverride = adj.suggestedValue;
       }
     }
     const calibrated = await runAnalysis(req.params.propertyId, calibratedOverrides);

@@ -58,10 +58,12 @@ export function getOperationsSnapshot(propertyId: string): OperationsSnapshot | 
   const totalRevenue = bookings.reduce((s, b) => s + b.revenue, 0);
   const totalAdr = totalNights > 0 ? Math.round((totalRevenue / totalNights) * 100) / 100 : 0;
 
-  // Total days in tracked period
-  const months = monthlyBreakdown.length;
-  const totalDays = months * 30; // simplified
-  const totalOccupancy = Math.round((totalNights / totalDays) * 1000) / 1000;
+  // Total days in tracked period using actual calendar days per month
+  const totalDays = monthlyBreakdown.reduce((s, m) => {
+    const [y, mo] = m.month.split("-").map(Number);
+    return s + new Date(y, mo, 0).getDate();
+  }, 0);
+  const totalOccupancy = totalDays > 0 ? Math.round((totalNights / totalDays) * 1000) / 1000 : 0;
 
   const dates = bookings.map((b) => b.checkIn).sort();
   const period = `${dates[0]} to ${bookings.map((b) => b.checkOut).sort().pop()}`;
