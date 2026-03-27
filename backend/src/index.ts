@@ -22,7 +22,7 @@ const port = Number(process.env.PORT ?? 4000);
 const frontendOrigin = process.env.FRONTEND_ORIGIN ?? "http://localhost:3000";
 const useMockData = (process.env.USE_MOCK_DATA ?? "true").toLowerCase() === "true";
 
-app.use(cors({ origin: frontendOrigin === "*" ? true : frontendOrigin }));
+app.use(cors({ origin: frontendOrigin }));
 app.use(express.json());
 
 const db = useMockData ? initDatabase() : null;
@@ -73,8 +73,8 @@ if (fs.existsSync(frontendOutDir)) {
   // SPA fallback: serve index.html for any non-API route
   app.get(/^(?!\/api\/).*/, (_req, res) => {
     const reqPath = _req.path.replace(/\/$/, "") || "/index";
-    const htmlFile = path.join(frontendOutDir, `${reqPath}.html`);
-    if (fs.existsSync(htmlFile)) {
+    const htmlFile = path.resolve(frontendOutDir, `.${reqPath}.html`);
+    if (htmlFile.startsWith(frontendOutDir) && fs.existsSync(htmlFile)) {
       res.sendFile(htmlFile);
     } else {
       res.sendFile(path.join(frontendOutDir, "index.html"));

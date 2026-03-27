@@ -482,6 +482,7 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   padding: 8px 18px; border-radius: var(--radius-sm);
   font-weight: 700; font-size: 0.92rem; margin-bottom: 10px;
 }
+.verdictStrongBuy { background: var(--green-bg); color: var(--green); border: 1px solid rgba(52,211,153,.3); box-shadow: 0 0 16px var(--green-glow); }
 .verdictPromising { background: var(--green-bg); color: var(--green); border: 1px solid rgba(52,211,153,.2); box-shadow: 0 0 12px var(--green-glow); }
 .verdictBorderline { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(251,191,36,.15); }
 .verdictCaution { background: var(--red-bg); color: var(--red); border: 1px solid rgba(248,113,113,.15); }

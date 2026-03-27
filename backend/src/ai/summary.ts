@@ -12,7 +12,8 @@ export class AiSummaryService {
     if (this.apiKey) {
       try {
         return await this.generateWithLlm(property, analysis);
-      } catch {
+      } catch (err) {
+        console.warn("AI summary failed, using heuristic fallback:", (err as Error).message ?? err);
         return this.generateHeuristicSummary(property, analysis);
       }
     }

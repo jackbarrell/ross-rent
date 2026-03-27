@@ -167,7 +167,7 @@ export function PropertyDetail({ id }: { id: string }) {
         {/* ─── Property Header ─── */}
         <div className="propertyHeroImage">
           {property.imageUrl ? (
-            <img src={property.imageUrl} alt={property.address} />
+            <img src={property.imageUrl} alt={property.address} width={1200} height={600} />
           ) : (
             <div className="heroImageFallback">
               <span className="heroImageFallbackIcon">⌂</span>
@@ -197,7 +197,7 @@ export function PropertyDetail({ id }: { id: string }) {
             <div className="priceBlock">
               <span className="bigPrice">{fmt$(property.listPrice)}</span>
               <span className="pill">{property.propertyType}</span>
-              <div className={`verdictBadge verdict${a.aiSummary.verdict}`}>
+              <div className={`verdictBadge verdict${a.aiSummary.verdict.replace(/\s+/g, "")}`}>
                 <span className="navBrandDot" style={{ width: 6, height: 6 }} />
                 {a.aiSummary.verdict}
               </div>
@@ -213,7 +213,7 @@ export function PropertyDetail({ id }: { id: string }) {
                     try {
                       await saveDeal(id, newStatus);
                       setDealStatus(newStatus);
-                    } catch {} finally { setSavingDeal(false); }
+                    } catch { alert("Failed to update deal status. Please try again."); } finally { setSavingDeal(false); }
                   }}
                 >
                   <option value="watching">Pipeline: watching</option>
@@ -232,7 +232,7 @@ export function PropertyDetail({ id }: { id: string }) {
                     try {
                       await saveDeal(id, "watching");
                       setDealStatus("watching");
-                    } catch {} finally { setSavingDeal(false); }
+                    } catch { alert("Failed to save to pipeline. Please try again."); } finally { setSavingDeal(false); }
                   }}
                 >
                   ＋ Save to Pipeline
@@ -343,13 +343,13 @@ export function PropertyDetail({ id }: { id: string }) {
               {recalcError && <p className="error" style={{ marginBottom: 8 }}>{recalcError}</p>}
               <div className="scenarioGrid">
                 <div className="inputGroup"><label>Renovation budget ($)</label><input type="number" className="numInput" value={renovationCost || ""} placeholder="0" onChange={(e) => setRenovationCost(Number(e.target.value) || 0)} /></div>
-                <div className="inputGroup"><label>Management fee (%)</label><input type="number" className="numInput" step="1" defaultValue={(a.assumptions.managementFeeRate * 100).toFixed(0)} onChange={(e) => handleOverride("managementFeeRate", Number(e.target.value) / 100)} /></div>
-                <div className="inputGroup"><label>Maintenance (%)</label><input type="number" className="numInput" step="1" defaultValue={(a.assumptions.maintenanceRate * 100).toFixed(0)} onChange={(e) => handleOverride("maintenanceRate", Number(e.target.value) / 100)} /></div>
-                <div className="inputGroup"><label>Vacancy buffer (%)</label><input type="number" className="numInput" step="0.5" defaultValue={(a.assumptions.vacancyBuffer * 100).toFixed(1)} onChange={(e) => handleOverride("vacancyBuffer", Number(e.target.value) / 100)} /></div>
-                <div className="inputGroup"><label>Utilities / mo ($)</label><input type="number" className="numInput" defaultValue={a.assumptions.utilitiesMonthly} onChange={(e) => handleOverride("utilitiesMonthly", Number(e.target.value))} /></div>
-                <div className="inputGroup"><label>Insurance / yr ($)</label><input type="number" className="numInput" defaultValue={a.assumptions.insuranceAnnual} onChange={(e) => handleOverride("insuranceAnnual", Number(e.target.value))} /></div>
-                <div className="inputGroup"><label>Tax rate (%)</label><input type="number" className="numInput" step="0.1" defaultValue={(a.assumptions.taxRateAnnual * 100).toFixed(2)} onChange={(e) => handleOverride("taxRateAnnual", Number(e.target.value) / 100)} /></div>
-                <div className="inputGroup"><label>Platform fee (%)</label><input type="number" className="numInput" step="1" defaultValue={(a.assumptions.platformFeeRate * 100).toFixed(0)} onChange={(e) => handleOverride("platformFeeRate", Number(e.target.value) / 100)} /></div>
+                <div className="inputGroup"><label>Management fee (%)</label><input type="number" className="numInput" step="1" key={`mgmt-${a.assumptions.managementFeeRate}`} defaultValue={(a.assumptions.managementFeeRate * 100).toFixed(0)} onChange={(e) => handleOverride("managementFeeRate", Number(e.target.value) / 100)} /></div>
+                <div className="inputGroup"><label>Maintenance (%)</label><input type="number" className="numInput" step="1" key={`maint-${a.assumptions.maintenanceRate}`} defaultValue={(a.assumptions.maintenanceRate * 100).toFixed(0)} onChange={(e) => handleOverride("maintenanceRate", Number(e.target.value) / 100)} /></div>
+                <div className="inputGroup"><label>Vacancy buffer (%)</label><input type="number" className="numInput" step="0.5" key={`vac-${a.assumptions.vacancyBuffer}`} defaultValue={(a.assumptions.vacancyBuffer * 100).toFixed(1)} onChange={(e) => handleOverride("vacancyBuffer", Number(e.target.value) / 100)} /></div>
+                <div className="inputGroup"><label>Utilities / mo ($)</label><input type="number" className="numInput" key={`util-${a.assumptions.utilitiesMonthly}`} defaultValue={a.assumptions.utilitiesMonthly} onChange={(e) => handleOverride("utilitiesMonthly", Number(e.target.value))} /></div>
+                <div className="inputGroup"><label>Insurance / yr ($)</label><input type="number" className="numInput" key={`ins-${a.assumptions.insuranceAnnual}`} defaultValue={a.assumptions.insuranceAnnual} onChange={(e) => handleOverride("insuranceAnnual", Number(e.target.value))} /></div>
+                <div className="inputGroup"><label>Tax rate (%)</label><input type="number" className="numInput" step="0.1" key={`tax-${a.assumptions.taxRateAnnual}`} defaultValue={(a.assumptions.taxRateAnnual * 100).toFixed(2)} onChange={(e) => handleOverride("taxRateAnnual", Number(e.target.value) / 100)} /></div>
+                <div className="inputGroup"><label>Platform fee (%)</label><input type="number" className="numInput" step="1" key={`plat-${a.assumptions.platformFeeRate}`} defaultValue={(a.assumptions.platformFeeRate * 100).toFixed(0)} onChange={(e) => handleOverride("platformFeeRate", Number(e.target.value) / 100)} /></div>
               </div>
               <button className="toggleLink" onClick={() => setShowAssumptions(!showAssumptions)}>
                 {showAssumptions ? "▾ Hide" : "▸ Show"} current assumptions

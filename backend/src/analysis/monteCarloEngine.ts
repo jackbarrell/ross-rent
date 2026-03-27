@@ -60,10 +60,22 @@ const DEFAULT_CONFIG: MonteCarloConfig = {
   interestRateStdDev: 0.005,
 };
 
-// Box-Muller transform for normal distribution
-function normalRandom(mean: number, stdDev: number): number {
-  const u1 = Math.random();
-  const u2 = Math.random();
+// Simple seeded PRNG (same as marketGenerator)
+function seededRandom(seed: string): () => number {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+  }
+  return () => {
+    h = (h * 1103515245 + 12345) & 0x7fffffff;
+    return h / 0x7fffffff;
+  };
+}
+
+// Box-Muller transform for normal distribution (seeded)
+function normalRandom(rng: () => number, mean: number, stdDev: number): number {
+  const u1 = rng() || 1e-10; // guard against 0 for log()
+  const u2 = rng();
   const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
   return mean + z * stdDev;
 }
@@ -110,11 +122,13 @@ export function runMonteCarlo(
   config: Partial<MonteCarloConfig> = {},
 ): MonteCarloResult {
   const cfg = { ...DEFAULT_CONFIG, ...config };
+  const rng = seededRandom(`mc-${property.id}`);
   const baseAdr = analysis.estimatedAdr;
   const baseOcc = analysis.estimatedOccupancyRate;
   const baseAppreciation = macro?.homePriceAppreciation ?? 0.035;
   const baseCostGrowth = 0.025;
   const baseRate = 0.065;
+  const revenueGrowth = 0.03;
 
   const irrs: number[] = [];
   const cocs: number[] = [];
@@ -124,11 +138,11 @@ export function runMonteCarlo(
 
   for (let i = 0; i < cfg.simulations; i++) {
     // Randomize inputs
-    const simAdr = clamp(normalRandom(baseAdr, baseAdr * cfg.adrStdDev), baseAdr * 0.5, baseAdr * 1.8);
-    const simOcc = clamp(normalRandom(baseOcc, cfg.occupancyStdDev), 0.2, 0.95);
-    const simAppreciation = clamp(normalRandom(baseAppreciation, cfg.appreciationStdDev), -0.05, 0.15);
-    const simCostGrowth = clamp(normalRandom(baseCostGrowth, cfg.costGrowthStdDev), 0.005, 0.06);
-    const simRate = clamp(normalRandom(baseRate, cfg.interestRateStdDev), 0.03, 0.10);
+    const simAdr = clamp(normalRandom(rng, baseAdr, baseAdr * cfg.adrStdDev), baseAdr * 0.5, baseAdr * 1.8);
+    const simOcc = clamp(normalRandom(rng, baseOcc, cfg.occupancyStdDev), 0.2, 0.95);
+    const simAppreciation = clamp(normalRandom(rng, baseAppreciation, cfg.appreciationStdDev), -0.05, 0.15);
+    const simCostGrowth = clamp(normalRandom(rng, baseCostGrowth, cfg.costGrowthStdDev), 0.005, 0.06);
+    const simRate = clamp(normalRandom(rng, baseRate, cfg.interestRateStdDev), 0.03, 0.10);
 
     // Calculate simulated revenue
     const simAnnualRevenue = simAdr * simOcc * 365;
@@ -152,7 +166,7 @@ export function runMonteCarlo(
     let y1Noi = 0;
 
     for (let y = 1; y <= 5; y++) {
-      const rev = Math.round(simAnnualRevenue * Math.pow(1 + 0.03, y - 1));
+      const rev = Math.round(simAnnualRevenue * Math.pow(1 + revenueGrowth, y - 1));
       const cost = Math.round(simOpCost * Math.pow(1 + simCostGrowth, y - 1));
       const noi = rev - cost;
       const cf = noi - annualDebt;
