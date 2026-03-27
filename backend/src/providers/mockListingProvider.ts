@@ -24,18 +24,30 @@ export class MockListingProvider implements ListingDataProvider {
       return this.db.prepare("SELECT * FROM properties WHERE zip = ? ORDER BY listPrice ASC").all(q) as PropertyListing[];
     }
 
-    // City,State format
+    // City,State format (exactly 2 parts)
     if (q.includes(",")) {
-      const [city, state] = q.split(",").map((x) => x.trim());
-      if (city && state) {
-        return this.db
+      const parts = q.split(",").map((x) => x.trim());
+      if (parts.length === 2 && parts[0] && parts[1]) {
+        const results = this.db
           .prepare("SELECT * FROM properties WHERE city = ? AND state = ? ORDER BY listPrice ASC")
-          .all(city, state) as PropertyListing[];
+          .all(parts[0], parts[1]) as PropertyListing[];
+        if (results.length > 0) return results;
       }
+      // Multi-part address like "4722 Randolph Rd, Morrisville, VT" — fall through to free-text
     }
 
-    // Free-text: search city, state, zip, address
+    // Free-text: search city, state, zip, address, or full query across all fields
     const like = `%${q}%`;
+    const words = q.split(/[\s,]+/).filter((w) => w.length >= 2);
+    if (words.length > 1) {
+      // Multi-word: match each word against any field for better address search
+      const conditions = words.map(() => "(address LIKE ? OR city LIKE ? OR state LIKE ? OR zip LIKE ?)").join(" AND ");
+      const params = words.flatMap((w) => { const l = `%${w}%`; return [l, l, l, l]; });
+      const results = this.db
+        .prepare(`SELECT * FROM properties WHERE ${conditions} ORDER BY listPrice ASC`)
+        .all(...params) as PropertyListing[];
+      if (results.length > 0) return results;
+    }
     return this.db
       .prepare("SELECT * FROM properties WHERE city LIKE ? OR state LIKE ? OR zip LIKE ? OR address LIKE ? ORDER BY listPrice ASC")
       .all(like, like, like, like) as PropertyListing[];
