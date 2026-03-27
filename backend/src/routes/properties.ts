@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Request, Response, NextFunction, Router } from "express";
 import { ListingDataProvider, ShortTermRentalDataProvider } from "../providers/interfaces.js";
 import { AnalysisEngine } from "../analysis/analysisEngine.js";
 import { getPropertyIdsWithBookings } from "../providers/operationsDataProvider.js";
@@ -12,14 +12,14 @@ export function createPropertyRouter(
 ) {
   const router = Router();
 
-  router.get("/locations", async (_req, res, next) => {
+  router.get("/locations", async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const locations = await listingProvider.getLocations();
       res.json({ locations });
     } catch (error) { next(error); }
   });
 
-  router.get("/properties", async (req, res, next) => {
+  router.get("/properties", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const location = String(req.query.location ?? "");
       const properties = await listingProvider.searchProperties(location);
@@ -27,7 +27,7 @@ export function createPropertyRouter(
     } catch (error) { next(error); }
   });
 
-  router.get("/properties/:id", async (req, res, next) => {
+  router.get("/properties/:id", async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
     try {
       const property = await listingProvider.getPropertyById(req.params.id);
       if (!property) { res.status(404).json({ message: "Property not found" }); return; }
@@ -36,7 +36,7 @@ export function createPropertyRouter(
   });
 
   // Rank all properties — parallelized
-  router.get("/ranking", async (req, res, next) => {
+  router.get("/ranking", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const location = String(req.query.location ?? "");
       const properties = await listingProvider.searchProperties(location);
@@ -77,7 +77,7 @@ export function createPropertyRouter(
   });
 
   // Portfolio — parallelized
-  router.get("/portfolio", async (_req, res, next) => {
+  router.get("/portfolio", async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const properties = await listingProvider.searchProperties("");
       const opsPropertyIds = new Set(getPropertyIdsWithBookings());
@@ -126,7 +126,7 @@ export function createPropertyRouter(
 
   // ─── Add / Remove Market ──────────────────────────────────
 
-  router.post("/markets", async (req, res, next) => {
+  router.post("/markets", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const rawCity = String(req.body.city ?? "").trim();
       let state = String(req.body.state ?? "").trim().toUpperCase();
@@ -176,7 +176,7 @@ export function createPropertyRouter(
     } catch (error) { next(error); }
   });
 
-  router.delete("/markets/:locationKey", async (req, res, next) => {
+  router.delete("/markets/:locationKey", async (req: Request<{ locationKey: string }>, res: Response, next: NextFunction) => {
     try {
       const [city, state] = decodeURIComponent(req.params.locationKey).split(",").map(s => s.trim());
       if (!city || !state) {

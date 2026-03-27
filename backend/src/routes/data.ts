@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Request, Response, NextFunction, Router } from "express";
 import { AnalysisAssumptions, InvestmentAnalysis, PropertyListing, SensitivityResult } from "../models.js";
 import { ListingDataProvider } from "../providers/interfaces.js";
 import { fetchLiveMacroData } from "../providers/liveProviders.js";
@@ -37,7 +37,7 @@ export function createDataRouter(
   // ─── Macro Data ────────────────────────────────────────────
   // Prefer live FRED/Census when keys are present, even in mock mode.
   // Falls back to static JSON if no keys or API failure.
-  router.get("/macro/:locationKey", async (req, res, next) => {
+  router.get("/macro/:locationKey", async (req: Request<{ locationKey: string }>, res: Response, next: NextFunction) => {
     try {
       const locationKey = decodeURIComponent(req.params.locationKey);
       const hasFredKey = !!process.env.FRED_API_KEY;
@@ -86,11 +86,11 @@ export function createDataRouter(
   });
 
   // ─── Renovation Cost Engine ────────────────────────────────
-  router.get("/cost-library", (_req, res) => {
+  router.get("/cost-library", (_req: Request, res: Response) => {
     res.json(getCostLibrary());
   });
 
-  router.get("/renovation/:propertyId", async (req, res, next) => {
+  router.get("/renovation/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const property = await listingProvider.getPropertyById(req.params.propertyId);
       if (!property) { res.status(404).json({ message: "Property not found" }); return; }
@@ -99,7 +99,7 @@ export function createDataRouter(
     } catch (error) { next(error); }
   });
 
-  router.post("/renovation/:propertyId", async (req, res, next) => {
+  router.post("/renovation/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const { items } = req.body as { items: Array<{ category: string; quantity: number }> };
       const estimate = calculateCustomRenovation(req.params.propertyId, items ?? []);
@@ -108,7 +108,7 @@ export function createDataRouter(
   });
 
   // ─── Valuation Engine ──────────────────────────────────────
-  router.get("/valuation/:propertyId", async (req, res, next) => {
+  router.get("/valuation/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const property = await listingProvider.getPropertyById(req.params.propertyId);
       if (!property) { res.status(404).json({ message: "Property not found" }); return; }
@@ -120,7 +120,7 @@ export function createDataRouter(
   });
 
   // ─── Financial Model ───────────────────────────────────────
-  router.get("/financial-model/:propertyId", async (req, res, next) => {
+  router.get("/financial-model/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -137,7 +137,7 @@ export function createDataRouter(
   });
 
   // ─── Investment Memo ───────────────────────────────────────
-  router.get("/memo/:propertyId", async (req, res, next) => {
+  router.get("/memo/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -161,7 +161,7 @@ export function createDataRouter(
   });
 
   // ─── Sensitivity Analysis ──────────────────────────────────
-  router.get("/sensitivity/:propertyId", async (req, res, next) => {
+  router.get("/sensitivity/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -254,7 +254,7 @@ export function createDataRouter(
   });
 
   // ─── Operations ────────────────────────────────────────────
-  router.get("/operations/:propertyId", (req, res) => {
+  router.get("/operations/:propertyId", (req: Request<{ propertyId: string }>, res: Response) => {
     const snapshot = getOperationsSnapshot(req.params.propertyId);
     if (!snapshot) {
       res.json({ propertyId: req.params.propertyId, hasData: false });
@@ -264,7 +264,7 @@ export function createDataRouter(
   });
 
   // ─── Accounting ────────────────────────────────────────────
-  router.get("/accounting", async (_req, res, next) => {
+  router.get("/accounting", async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const properties = await listingProvider.searchProperties("");
       const addrMap = new Map(properties.map((p) => [p.id, p.address]));
@@ -273,7 +273,7 @@ export function createDataRouter(
     } catch (error) { next(error); }
   });
 
-  router.get("/accounting/:propertyId", async (req, res, next) => {
+  router.get("/accounting/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const property = await listingProvider.getPropertyById(req.params.propertyId);
       const pl = getPropertyPL(req.params.propertyId, () => property?.address ?? req.params.propertyId);
@@ -282,7 +282,7 @@ export function createDataRouter(
   });
 
   // ─── Forecast vs Actual ────────────────────────────────────
-  router.get("/forecast-vs-actual/:propertyId", async (req, res, next) => {
+  router.get("/forecast-vs-actual/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -296,7 +296,7 @@ export function createDataRouter(
     } catch (error) { next(error); }
   });
 
-  router.post("/forecast-vs-actual/:propertyId/apply", async (req, res, next) => {
+  router.post("/forecast-vs-actual/:propertyId/apply", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -317,24 +317,24 @@ export function createDataRouter(
   });
 
   // ─── Deal Pipeline ─────────────────────────────────────────
-  router.get("/deals", (_req, res) => {
+  router.get("/deals", (_req: Request, res: Response) => {
     res.json({ deals: getAllDeals() });
   });
 
-  router.post("/deals", (req, res) => {
+  router.post("/deals", (req: Request, res: Response) => {
     const { propertyId, status, notes } = req.body as { propertyId: string; status?: DealStatus; notes?: string };
     if (!propertyId) { res.status(400).json({ message: "propertyId required" }); return; }
     const deal = upsertDeal(propertyId, status ?? "watching", notes ?? "");
     res.json(deal);
   });
 
-  router.delete("/deals/:propertyId", (req, res) => {
+  router.delete("/deals/:propertyId", (req: Request<{ propertyId: string }>, res: Response) => {
     deleteDeal(req.params.propertyId);
     res.json({ ok: true });
   });
 
   // ─── Property Comparison — parallelized ────────────────────
-  router.post("/compare", async (req, res, next) => {
+  router.post("/compare", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { propertyIds } = req.body as { propertyIds: string[] };
       if (!propertyIds || propertyIds.length < 2) {
@@ -380,7 +380,7 @@ export function createDataRouter(
   });
 
   // ─── Monte Carlo Simulation ────────────────────────────────
-  router.get("/monte-carlo/:propertyId", async (req, res, next) => {
+  router.get("/monte-carlo/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -394,7 +394,7 @@ export function createDataRouter(
   });
 
   // ─── Deal Score Card ────────────────────────────────────────
-  router.get("/deal-score/:propertyId", async (req, res, next) => {
+  router.get("/deal-score/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -411,7 +411,7 @@ export function createDataRouter(
   });
 
   // ─── Break-Even Analysis ───────────────────────────────────
-  router.get("/break-even/:propertyId", async (req, res, next) => {
+  router.get("/break-even/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -426,7 +426,7 @@ export function createDataRouter(
   });
 
   // ─── Waterfall Analysis ────────────────────────────────────
-  router.get("/waterfall/:propertyId", async (req, res, next) => {
+  router.get("/waterfall/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -441,7 +441,7 @@ export function createDataRouter(
   });
 
   // ─── Market Analytics ──────────────────────────────────────
-  router.get("/market-analytics/:locationKey", async (req, res, next) => {
+  router.get("/market-analytics/:locationKey", async (req: Request<{ locationKey: string }>, res: Response, next: NextFunction) => {
     try {
       const locationKey = decodeURIComponent(req.params.locationKey);
       const properties = await listingProvider.searchProperties(locationKey);
@@ -459,7 +459,7 @@ export function createDataRouter(
   });
 
   // ─── All Markets Analytics ─────────────────────────────────
-  router.get("/market-analytics", async (_req, res, next) => {
+  router.get("/market-analytics", async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const locations = await listingProvider.getLocations();
       const results = await Promise.all(
@@ -478,7 +478,7 @@ export function createDataRouter(
   });
 
   // ─── Portfolio Risk ────────────────────────────────────────
-  router.get("/portfolio-risk", async (_req, res, next) => {
+  router.get("/portfolio-risk", async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const properties = await listingProvider.searchProperties("");
       const results = await Promise.all(
@@ -504,7 +504,7 @@ export function createDataRouter(
   });
 
   // ─── Sensitivity Heatmap (2D) ──────────────────────────────
-  router.get("/heatmap/:propertyId", async (req, res, next) => {
+  router.get("/heatmap/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }

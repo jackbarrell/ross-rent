@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Request, Response, NextFunction, Router } from "express";
 import { AnalysisEngine } from "../analysis/analysisEngine.js";
 import { AiSummaryService } from "../ai/summary.js";
 import { AnalysisAssumptions, InvestmentAnalysis } from "../models.js";
@@ -47,7 +47,7 @@ export function createAnalysisRouter(
   }
 
   // Standard analysis (GET)
-  router.get("/:propertyId", async (req, res, next) => {
+  router.get("/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const result = await runAnalysis(req.params.propertyId);
       if (!result) { res.status(404).json({ message: "Property not found" }); return; }
@@ -56,7 +56,7 @@ export function createAnalysisRouter(
   });
 
   // Analysis with custom assumptions + renovation cost (POST)
-  router.post("/:propertyId", async (req, res, next) => {
+  router.post("/:propertyId", async (req: Request<{ propertyId: string }>, res: Response, next: NextFunction) => {
     try {
       const { assumptions, renovationCost } = req.body as {
         assumptions?: Partial<AnalysisAssumptions>;
