@@ -309,7 +309,7 @@ async function _fetchLiveMacroDataUncached(
   };
   const fips = stateFips[state] ?? "";
 
-  let unemploymentRate = 3.5;
+  let unemploymentRate = 0.035;
   let homePriceAppreciation = 0.035;
   let medianHomePrice = 400000;
   let mortgageRate30yr = 6.72;
@@ -335,7 +335,7 @@ async function _fetchLiveMacroDataUncached(
     // Unemployment (state-level)
     try {
       const vals = await fetchFredSeries(`${state}UR`);
-      if (vals.length > 0) { unemploymentRate = parseFloat(vals[0]); notesSources.push("Unemployment from FRED"); }
+      if (vals.length > 0) { unemploymentRate = parseFloat(vals[0]) / 100; notesSources.push("Unemployment from FRED"); }
     } catch { /* use default */ }
 
     // Median home price + appreciation (state-level)
@@ -447,7 +447,7 @@ async function _fetchLiveMacroDataUncached(
 
   function buildMacroResult(): import("../models.js").MacroData {
     const economicTrendScore = Math.round(
-      (Math.min(1, (6 - unemploymentRate) / 4) * 30 +
+      (Math.min(1, (0.06 - unemploymentRate) / 0.04) * 30 +
         Math.min(1, homePriceAppreciation / 0.08) * 25 +
         Math.min(1, employmentGrowth / 0.04) * 25 +
         Math.min(1, (10 - mortgageRate30yr) / 5) * 20) * 10
