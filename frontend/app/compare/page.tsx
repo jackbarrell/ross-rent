@@ -43,7 +43,9 @@ export default function ComparePage() {
     try {
       const result = await fetchComparison(Array.from(selected));
       setComparisons(result.comparisons);
-    } catch {} finally { setLoading(false); }
+    } catch {
+      setComparisons(null);
+    } finally { setLoading(false); }
   };
 
   return (
@@ -99,7 +101,7 @@ export default function ComparePage() {
                 <tr>
                   <th>Metric</th>
                   {comparisons.map((c) => (
-                    <th key={c.propertyId} className="cellRight">{c.address.split(",")[0]}</th>
+                    <th key={c.propertyId} className="cellRight">{(c.address ?? "").split(",")[0]}</th>
                   ))}
                 </tr>
               </thead>

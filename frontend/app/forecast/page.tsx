@@ -25,6 +25,7 @@ export default function ForecastPage() {
   const [rows, setRows] = useState<ForecastRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<ForecastRow | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,7 +44,9 @@ export default function ForecastPage() {
         const results = forecasts.filter((r): r is ForecastRow => r !== null);
         setRows(results);
         if (results.length > 0) setSelected(results[0]);
-      } catch {}
+      } catch {
+        if (!cancelled) setError("Unable to load forecast data.");
+      }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -65,7 +68,9 @@ export default function ForecastPage() {
         <p>Compare predicted performance against real booking and revenue data with AI-powered variance analysis.</p>
       </section>
 
-      {rows.length === 0 ? (
+      {error && <p className="error">{error}</p>}
+
+      {!error && rows.length === 0 ? (
         <section className="panel">
           <p className="hintText">No properties with operational data available yet.</p>
         </section>

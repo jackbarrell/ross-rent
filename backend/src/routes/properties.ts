@@ -117,8 +117,8 @@ export function createPropertyRouter(
         totalPortfolioValue: totalValue,
         totalEstimatedRevenue: Math.round(totalRev),
         totalEstimatedNoi: Math.round(totalNoi),
-        averageYield: Math.round((portfolioProperties.reduce((s, p) => s + p.yieldProxy, 0) / portfolioProperties.length) * 10000) / 10000,
-        averageScore: Math.round(portfolioProperties.reduce((s, p) => s + p.score, 0) / portfolioProperties.length * 10) / 10,
+        averageYield: portfolioProperties.length > 0 ? Math.round((portfolioProperties.reduce((s, p) => s + p.yieldProxy, 0) / portfolioProperties.length) * 10000) / 10000 : 0,
+        averageScore: portfolioProperties.length > 0 ? Math.round(portfolioProperties.reduce((s, p) => s + p.score, 0) / portfolioProperties.length * 10) / 10 : 0,
         properties: portfolioProperties,
       });
     } catch (error) { next(error); }
@@ -154,8 +154,8 @@ export function createPropertyRouter(
         state = resolved;
       }
 
-      // Normalize city to title case
-      const city = rawCity.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+      // Normalize city to title case (preserve internal caps like McDonald, DeWitt)
+      const city = rawCity.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 
       if (marketExists(city, state)) {
         res.status(409).json({ message: `${city}, ${state} is already being monitored` });

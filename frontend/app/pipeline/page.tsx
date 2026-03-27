@@ -22,14 +22,21 @@ export default function PipelinePage() {
   const [properties, setProperties] = useState<Map<string, PropertyListing>>(new Map());
   const [loading, setLoading] = useState(true);
 
+  const [error, setError] = useState<string | null>(null);
+
   const loadDeals = async () => {
-    const [d, p] = await Promise.all([
-      fetchDeals(),
-      fetchProperties(""),
-    ]);
-    setDeals(d.deals);
-    setProperties(new Map(p.properties.map((prop) => [prop.id, prop])));
-    setLoading(false);
+    try {
+      const [d, p] = await Promise.all([
+        fetchDeals(),
+        fetchProperties(""),
+      ]);
+      setDeals(d.deals);
+      setProperties(new Map(p.properties.map((prop) => [prop.id, prop])));
+    } catch {
+      setError("Unable to load pipeline data.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { loadDeals(); }, []);
@@ -55,6 +62,7 @@ export default function PipelinePage() {
   };
 
   if (loading) return <div className="pageStack fadeIn"><p>Loading pipeline…</p></div>;
+  if (error) return <div className="pageStack fadeIn"><p className="error">{error}</p></div>;
 
   const grouped = STATUS_OPTIONS.map((status) => ({
     status,

@@ -222,12 +222,12 @@ export default function HomePage() {
             <div className="emptyStateIcon">🏘️</div>
             <h3 className="emptyStateTitle">No properties in &ldquo;{selectedLocation}&rdquo;</h3>
             <p className="emptyStateText">
-              {/\d/.test(selectedLocation)
+              {/^\d+\s+\w/.test(selectedLocation)
                 ? "This address wasn\u2019t found. Try searching by city name (e.g., Morrisville, VT) or ZIP code."
                 : "This market isn\u2019t being monitored yet. Add it to generate properties and rental comps so the AI engine can start analysing investment opportunities."}
             </p>
             {addMarketError && <p className="error" style={{ marginBottom: 12 }}>{addMarketError}</p>}
-            {!/\d/.test(selectedLocation) && (
+            {!/^\d+\s+\w/.test(selectedLocation) && (
               <button
                 className="btnPrimary emptyStateBtn"
                 onClick={handleAddMarket}

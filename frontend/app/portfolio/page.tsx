@@ -23,7 +23,7 @@ export default function PortfolioPage() {
       fetchPortfolioRisk(),
     ])
       .then(([p, a, r]) => { setPortfolio(p); setAccounting(a); setRisk(r); })
-      .catch(() => {})
+      .catch(() => { /* data unavailable — render empty */ })
       .finally(() => setLoading(false));
   }, []);
 

@@ -17,7 +17,7 @@ export default function MarketsPage() {
   useEffect(() => {
     fetchAllMarketAnalytics()
       .then((r) => setMarkets(r.markets))
-      .catch(() => {})
+      .catch(() => setMarkets([]))
       .finally(() => setLoading(false));
   }, []);
 
@@ -32,10 +32,10 @@ export default function MarketsPage() {
 
   const totalProperties = markets.reduce((s, m) => s + m.propertyCount, 0);
   const totalValue = markets.reduce((s, m) => s + m.avgPrice * m.propertyCount, 0);
-  const overallAvgYield = markets.length > 0
+  const overallAvgYield = totalProperties > 0
     ? markets.reduce((s, m) => s + m.avgYield * m.propertyCount, 0) / totalProperties
     : 0;
-  const overallAvgScore = markets.length > 0
+  const overallAvgScore = totalProperties > 0
     ? markets.reduce((s, m) => s + m.avgScore * m.propertyCount, 0) / totalProperties
     : 0;
 
