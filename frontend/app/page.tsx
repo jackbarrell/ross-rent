@@ -66,19 +66,29 @@ export default function HomePage() {
     setAddMarketError(null);
     setAddMarketSuccess(null);
     try {
-      // Parse "City,State" or just "City"
+      // Parse location — handle "City,State", "City", or "Address, City, State"
       const parts = selectedLocation.split(",").map(s => s.trim());
-      const city = parts[0];
-      const state = parts[1] || undefined;
+      let city: string;
+      let state: string | undefined;
+      if (parts.length >= 3) {
+        // "4722 Randolph Rd, Morrisville, VT" → city=Morrisville, state=VT
+        city = parts[parts.length - 2];
+        state = parts[parts.length - 1];
+      } else {
+        city = parts[0];
+        state = parts[1] || undefined;
+      }
       await addMarket(city, state);
+      const locationKey = state ? `${city},${state}` : city;
       // Re-fetch to show new properties
       const [{ locations: locs }, { properties: props }] = await Promise.all([
         fetchLocations(),
-        fetchProperties(selectedLocation)
+        fetchProperties(locationKey)
       ]);
       setLocations(locs);
       setProperties(props);
-      setAddMarketSuccess(`${selectedLocation} added to your watchlist!`);
+      setSelectedLocation(locationKey);
+      setAddMarketSuccess(`${city}${state ? ", " + state : ""} added to your watchlist!`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to add market";
       setAddMarketError(msg);
@@ -196,17 +206,20 @@ export default function HomePage() {
             <div className="emptyStateIcon">🏘️</div>
             <h3 className="emptyStateTitle">No properties in &ldquo;{selectedLocation}&rdquo;</h3>
             <p className="emptyStateText">
-              This market isn&apos;t being monitored yet. Add it to generate properties and rental
-              comps so the AI engine can start analysing investment opportunities.
+              {/\d/.test(selectedLocation)
+                ? "This address wasn\u2019t found. Try searching by city name (e.g., Morrisville, VT) or ZIP code."
+                : "This market isn\u2019t being monitored yet. Add it to generate properties and rental comps so the AI engine can start analysing investment opportunities."}
             </p>
             {addMarketError && <p className="error" style={{ marginBottom: 12 }}>{addMarketError}</p>}
-            <button
-              className="btnPrimary emptyStateBtn"
-              onClick={handleAddMarket}
-              disabled={addingMarket}
-            >
-              {addingMarket ? "Adding market…" : `Add ${selectedLocation} to watchlist`}
-            </button>
+            {!/\d/.test(selectedLocation) && (
+              <button
+                className="btnPrimary emptyStateBtn"
+                onClick={handleAddMarket}
+                disabled={addingMarket}
+              >
+                {addingMarket ? "Adding market\u2026" : `Add ${selectedLocation} to watchlist`}
+              </button>
+            )}
           </div>
         )}
 

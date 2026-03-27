@@ -136,6 +136,12 @@ export function createPropertyRouter(
         return;
       }
 
+      // Reject street addresses passed as city names
+      if (/\d/.test(rawCity)) {
+        res.status(400).json({ message: `"${rawCity}" looks like a street address, not a city name. Please enter a city name (e.g., Morrisville).` });
+        return;
+      }
+
       // Auto-resolve state from city name if not provided
       if (!state) {
         const resolved = resolveState(rawCity);

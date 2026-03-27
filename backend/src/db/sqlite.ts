@@ -116,6 +116,10 @@ export const initDatabase = () => {
     transaction(comps);
   }
 
+  // Clean up any bogus markets where city contains digits (street addresses)
+  db.prepare("DELETE FROM properties WHERE city GLOB '*[0-9]*'").run();
+  db.prepare("DELETE FROM rental_comps WHERE locationKey GLOB '*[0-9]*'").run();
+
   return db;
 };
 
