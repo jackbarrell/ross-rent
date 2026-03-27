@@ -133,9 +133,25 @@ export function PropertyDetail({ id }: { id: string }) {
   if (loading || !property || !analysis) return (
     <div className="pageStack fadeIn">
       <Link href="/" className="backLink">← Back</Link>
-      <div className="skeleton skeletonBlock" />
-      <div className="skeleton skeletonBlock" />
-      <div className="skeleton" style={{ height: 40, width: 200 }} />
+      <div className="skeleton" style={{ height: 320, borderRadius: 14 }} />
+      <div className="panel">
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 20 }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div className="skeleton" style={{ height: 28, width: "60%" }} />
+            <div className="skeleton" style={{ height: 16, width: "40%" }} />
+            <div className="skeleton" style={{ height: 16, width: "50%" }} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+            <div className="skeleton" style={{ height: 32, width: 140 }} />
+            <div className="skeleton" style={{ height: 24, width: 80 }} />
+          </div>
+        </div>
+        <div className="metricsGrid" style={{ marginTop: 20 }}>
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="skeleton" style={{ height: 72 }} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 

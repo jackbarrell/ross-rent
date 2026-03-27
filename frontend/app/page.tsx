@@ -116,22 +116,29 @@ export default function HomePage() {
           Discover high-yield short-term rental opportunities. Our AI engine analyzes market comps,
           macro trends, renovation costs, and financial models to surface the best investment deals.
         </p>
-        {!loading && properties.length > 0 && (
-          <div className="heroStats">
-            <div className="heroStat">
-              <span className="heroStatValue">{properties.length}</span>
-              <span className="heroStatLabel">Properties</span>
-            </div>
-            <div className="heroStat">
-              <span className="heroStatValue">{locations.length}</span>
-              <span className="heroStatLabel">Markets</span>
-            </div>
-            <div className="heroStat">
-              <span className="heroStatValue">13</span>
-              <span className="heroStatLabel">AI Models</span>
-            </div>
+        <div className="heroStats">
+          <div className="heroStat">
+            <span className="heroStatValue">{loading ? "–" : properties.length}</span>
+            <span className="heroStatLabel">Properties</span>
           </div>
-        )}
+          <div className="heroStat">
+            <span className="heroStatValue">{loading ? "–" : locations.length}</span>
+            <span className="heroStatLabel">Markets</span>
+          </div>
+          <div className="heroStat">
+            <span className="heroStatValue">13</span>
+            <span className="heroStatLabel">AI Models</span>
+          </div>
+          <div className="heroStat">
+            <span className="heroStatValue">4</span>
+            <span className="heroStatLabel">Risk Engines</span>
+          </div>
+        </div>
+        <div className="heroNav">
+          <Link href="/markets" className="heroLink">◎ Market Intelligence</Link>
+          <Link href="/portfolio" className="heroLink">◈ Portfolio & P&L</Link>
+          <Link href="/about" className="heroLink">◉ How It Works</Link>
+        </div>
       </header>
 
       <LocationSelector
@@ -176,9 +183,18 @@ export default function HomePage() {
         </div>
 
         {loading && (
-          <div className="pageStack" style={{ gap: 12 }}>
-            <div className="skeleton skeletonBlock" />
-            <div className="skeleton skeletonBlock" />
+          <div className="loadingGrid">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="skeletonCard">
+                <div className="skeleton skeletonImage" />
+                <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div className="skeleton" style={{ height: 16, width: "70%" }} />
+                  <div className="skeleton" style={{ height: 12, width: "50%" }} />
+                  <div className="skeleton" style={{ height: 12, width: "90%" }} />
+                  <div className="skeleton" style={{ height: 24, width: "40%", marginTop: 8 }} />
+                </div>
+              </div>
+            ))}
           </div>
         )}
         {error && <p className="error">{error}</p>}
@@ -195,9 +211,9 @@ export default function HomePage() {
         )}
 
         {addMarketSuccess && (
-          <div className="successBanner" style={{ background: "var(--green-bg, rgba(0,255,136,0.1))", border: "1px solid var(--green, #00ff88)", borderRadius: 8, padding: "12px 16px", marginBottom: 12, color: "var(--green, #00ff88)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div className="successBanner">
             <span>✓ {addMarketSuccess}</span>
-            <button onClick={() => setAddMarketSuccess(null)} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: "1.1rem" }}>✕</button>
+            <button className="successBannerClose" onClick={() => setAddMarketSuccess(null)}>✕</button>
           </div>
         )}
 
@@ -230,6 +246,12 @@ export default function HomePage() {
             <p className="emptyStateText">
               Use the search bar above or select a location from the dropdown to view properties.
             </p>
+            <div className="quickSearches">
+              <span className="quickSearchLabel">Try:</span>
+              {["Morrisville, VT", "Austin, TX", "78702"].map(q => (
+                <button key={q} className="quickSearchChip" onClick={() => setSelectedLocation(q)}>{q}</button>
+              ))}
+            </div>
           </div>
         )}
 

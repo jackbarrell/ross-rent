@@ -54,13 +54,18 @@ export function PropertyCard({ property }: { property: PropertyListing }) {
         <p className="cardLocation">{property.city}, {property.state} {property.zip}</p>
         <p className="cardSpecs">{property.bedrooms} bd · {property.bathrooms} ba · {property.sqft.toLocaleString()} sqft</p>
         {score && (
-          <div className="cardScoreRow">
-            <span className="cardScoreLabel">Score</span>
-            <div className="cardScoreBarTrack">
-              <div className="cardScoreBarFill" style={{ width: `${score.overallScore}%`, background: gradeColor, boxShadow: `0 0 8px ${gradeColor}55` }} />
+          <>
+            <div className="cardScoreRow">
+              <span className="cardScoreLabel">Score</span>
+              <div className="cardScoreBarTrack">
+                <div className="cardScoreBarFill" style={{ width: `${score.overallScore}%`, background: gradeColor, boxShadow: `0 0 8px ${gradeColor}55` }} />
+              </div>
+              <span className="cardScoreValue" style={{ color: gradeColor }}>{score.overallScore}/100</span>
             </div>
-            <span className="cardScoreValue" style={{ color: gradeColor }}>{score.overallScore}/100</span>
-          </div>
+            {score.recommendation && (
+              <p className="cardRecommendation">{score.recommendation.slice(0, 80)}{score.recommendation.length > 80 ? "…" : ""}</p>
+            )}
+          </>
         )}
         <div className="cardFooter">
           <strong>${property.listPrice.toLocaleString()}</strong>

@@ -128,7 +128,48 @@ export default function AboutPage() {
           properties and building the financial case, through operations and performance tracking,
           to improving future decisions. One system, not disconnected tools.
         </p>
+        <div className="heroStats">
+          <div className="heroStat">
+            <span className="heroStatValue">11</span>
+            <span className="heroStatLabel">Lifecycle Steps</span>
+          </div>
+          <div className="heroStat">
+            <span className="heroStatValue">13</span>
+            <span className="heroStatLabel">AI Models</span>
+          </div>
+          <div className="heroStat">
+            <span className="heroStatValue">7</span>
+            <span className="heroStatLabel">Data Sources</span>
+          </div>
+          <div className="heroStat">
+            <span className="heroStatValue">5yr</span>
+            <span className="heroStatLabel">Forecast Horizon</span>
+          </div>
+        </div>
       </header>
+
+      {/* Demo Walkthrough */}
+      <section className="aiPanel">
+        <h3><span className="pillAi" style={{ marginRight: 6 }}>DEMO</span> Quick Walkthrough</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16, marginTop: 16 }}>
+          <div className="panel" style={{ padding: "16px 18px" }}>
+            <h3 style={{ margin: "0 0 6px", fontSize: "0.9rem" }}>1. Search a Market</h3>
+            <p className="hintText" style={{ margin: 0 }}>Try &ldquo;Morrisville, VT&rdquo; or &ldquo;Austin, TX&rdquo; — see AI-scored property cards with deal grades.</p>
+          </div>
+          <div className="panel" style={{ padding: "16px 18px" }}>
+            <h3 style={{ margin: "0 0 6px", fontSize: "0.9rem" }}>2. Dive into a Property</h3>
+            <p className="hintText" style={{ margin: 0 }}>Click any card to see 13 analysis tabs — from STR comps to Monte Carlo to AI memo.</p>
+          </div>
+          <div className="panel" style={{ padding: "16px 18px" }}>
+            <h3 style={{ margin: "0 0 6px", fontSize: "0.9rem" }}>3. Run Scenarios</h3>
+            <p className="hintText" style={{ margin: 0 }}>Adjust renovation budget, fees, and rates — recalculate the full model in real-time.</p>
+          </div>
+          <div className="panel" style={{ padding: "16px 18px" }}>
+            <h3 style={{ margin: "0 0 6px", fontSize: "0.9rem" }}>4. Compare &amp; Decide</h3>
+            <p className="hintText" style={{ margin: 0 }}>Use Compare, Markets, and Portfolio views to evaluate across properties.</p>
+          </div>
+        </div>
+      </section>
 
       {/* Lifecycle stages */}
       {PHASES.map((phase) => (
