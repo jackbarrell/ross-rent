@@ -1,5 +1,18 @@
 import { PropertyListing, RentalComparable } from "../models.js";
 
+// ─── Stock house photos for generated properties ───────────
+
+const HOUSE_IMAGES = [
+  "https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=800&h=600&fit=crop",
+];
+
 // ─── City → State lookup for common US cities ──────────────
 
 const CITY_STATE_MAP: Record<string, string> = {
@@ -239,7 +252,7 @@ export function generateProperties(city: string, state: string, count = 5): Prop
       daysOnMarket: randBetween(rng, 2, 90),
       lat: baseLat + (rng() - 0.5) * 0.04,
       lng: baseLng + (rng() - 0.5) * 0.04,
-      imageUrl: undefined,
+      imageUrl: HOUSE_IMAGES[i % HOUSE_IMAGES.length],
       description: undefined,
     });
   }
