@@ -388,5 +388,83 @@
     "reviews": 43,
     "distanceMiles": 3.1,
     "propertyType": "Entire home"
+  },
+  {
+    "id": "comp-mvt-001",
+    "locationKey": "Morrisville,VT",
+    "source": "Airbnb",
+    "name": "Stowe Valley Farmhouse",
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "adr": 195,
+    "occupancyRate": 0.68,
+    "reviews": 87,
+    "distanceMiles": 1.5,
+    "propertyType": "Entire home"
+  },
+  {
+    "id": "comp-mvt-002",
+    "locationKey": "Morrisville,VT",
+    "source": "Vrbo",
+    "name": "Mountain View Retreat",
+    "bedrooms": 4,
+    "bathrooms": 2,
+    "adr": 245,
+    "occupancyRate": 0.72,
+    "reviews": 64,
+    "distanceMiles": 2.3,
+    "propertyType": "Entire home"
+  },
+  {
+    "id": "comp-mvt-003",
+    "locationKey": "Morrisville,VT",
+    "source": "Airbnb",
+    "name": "Cozy Lamoille River Cabin",
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "adr": 155,
+    "occupancyRate": 0.64,
+    "reviews": 112,
+    "distanceMiles": 0.9,
+    "propertyType": "Entire home"
+  },
+  {
+    "id": "comp-mvt-004",
+    "locationKey": "Morrisville,VT",
+    "source": "Airbnb",
+    "name": "Smugglers Notch Chalet",
+    "bedrooms": 5,
+    "bathrooms": 3,
+    "adr": 320,
+    "occupancyRate": 0.70,
+    "reviews": 45,
+    "distanceMiles": 4.2,
+    "propertyType": "Entire home"
+  },
+  {
+    "id": "comp-mvt-005",
+    "locationKey": "Morrisville,VT",
+    "source": "Vrbo",
+    "name": "Village Center Cottage",
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "adr": 178,
+    "occupancyRate": 0.62,
+    "reviews": 93,
+    "distanceMiles": 0.5,
+    "propertyType": "Entire home"
+  },
+  {
+    "id": "comp-mvt-006",
+    "locationKey": "Morrisville,VT",
+    "source": "Airbnb",
+    "name": "Elmore Ski Lodge",
+    "bedrooms": 4,
+    "bathrooms": 2.5,
+    "adr": 268,
+    "occupancyRate": 0.66,
+    "reviews": 38,
+    "distanceMiles": 3.5,
+    "propertyType": "Entire home"
   }
 ]

@@ -29,7 +29,7 @@ export function NavBar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`navLink ${pathname === link.href ? "navLinkActive" : ""}`}
+              className={`navLink ${pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href)) ? "navLinkActive" : ""}`}
             >
               {link.icon} {link.label}
             </Link>

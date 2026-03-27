@@ -32,6 +32,7 @@ const CITY_STATE_MAP: Record<string, string> = {
   "joshua tree": "CA", "galveston": "TX", "south padre island": "TX",
   "broken bow": "OK", "blue ridge": "GA", "helen": "GA",
   "branson": "MO", "hot springs": "AR",
+  "morrisville": "VT", "stowe": "VT", "burlington": "VT", "montpelier": "VT",
 };
 
 export function resolveState(city: string): string | null {
@@ -133,6 +134,8 @@ const CITY_COORDS: Record<string, [number, number]> = {
   "destin,fl": [30.3935, -86.4958], "hilton head,sc": [32.2163, -80.7526],
   "galveston,tx": [29.3013, -94.7977], "key west,fl": [24.5551, -81.7800],
   "bend,or": [44.0582, -121.3153], "big bear,ca": [34.2439, -116.9114],
+  "morrisville,vt": [44.5575, -72.5993], "stowe,vt": [44.4654, -72.6874],
+  "burlington,vt": [44.4759, -73.2121],
 };
 
 function getCityCoords(city: string, state: string): [number, number] {
@@ -180,6 +183,7 @@ const STATE_ZIP_PREFIXES: Record<string, string[]> = {
   SC: ["290", "293", "294", "295"], TN: ["370", "371", "372", "373", "377", "378", "379"],
   TX: ["750", "752", "760", "770", "773", "780", "782", "787", "789"],
   UT: ["840", "841", "843", "844"], VA: ["220", "221", "222", "230", "231", "232"],
+  VT: ["050", "054", "056", "058"],
   WA: ["980", "981", "982", "983", "984", "985"], WI: ["530", "531", "532", "535", "537"],
   WY: ["820", "822", "823"],
 };

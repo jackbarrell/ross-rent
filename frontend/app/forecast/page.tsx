@@ -27,21 +27,26 @@ export default function ForecastPage() {
   const [selected, setSelected] = useState<ForecastRow | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
         const { properties } = await fetchProperties("");
-        const results: ForecastRow[] = [];
-        for (const property of properties) {
-          const forecast = await fetchForecastVsActual(property.id);
-          if (forecast.hasData) {
-            results.push({ property, forecast });
-          }
-        }
+        const forecasts = await Promise.all(
+          properties.map(async (property) => {
+            try {
+              const forecast = await fetchForecastVsActual(property.id);
+              return forecast.hasData ? { property, forecast } : null;
+            } catch { return null; }
+          })
+        );
+        if (cancelled) return;
+        const results = forecasts.filter((r): r is ForecastRow => r !== null);
         setRows(results);
         if (results.length > 0) setSelected(results[0]);
       } catch {}
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, []);
 
   if (loading) {

@@ -109,13 +109,18 @@ export function PropertyDetail({ id }: { id: string }) {
     }).catch(() => {});
   }, [id]);
 
+  const [recalcError, setRecalcError] = useState<string | null>(null);
+
   const recalculate = useCallback(async () => {
     if (Object.keys(overrides).length === 0 && renovationCost === 0) return;
     try {
       setIsRecalculating(true);
+      setRecalcError(null);
       const r = await fetchAnalysisWithOverrides(id, overrides, renovationCost);
       setAnalysis(r.analysis);
-    } catch {} finally { setIsRecalculating(false); }
+    } catch {
+      setRecalcError("Recalculation failed. Please try again.");
+    } finally { setIsRecalculating(false); }
   }, [id, overrides, renovationCost]);
 
   const handleOverride = (key: keyof AnalysisAssumptions, value: number) => {
@@ -298,6 +303,7 @@ export function PropertyDetail({ id }: { id: string }) {
                 </button>
               </div>
               <p className="hintText">Adjust inputs and click Recalculate to rerun the analysis.</p>
+              {recalcError && <p className="error" style={{ marginBottom: 8 }}>{recalcError}</p>}
               <div className="scenarioGrid">
                 <div className="inputGroup"><label>Renovation budget ($)</label><input type="number" className="numInput" value={renovationCost || ""} placeholder="0" onChange={(e) => setRenovationCost(Number(e.target.value) || 0)} /></div>
                 <div className="inputGroup"><label>Management fee (%)</label><input type="number" className="numInput" step="1" placeholder={String((a.assumptions.managementFeeRate * 100).toFixed(0))} onChange={(e) => handleOverride("managementFeeRate", Number(e.target.value) / 100)} /></div>

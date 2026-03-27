@@ -1375,5 +1375,302 @@
     "description": "December maintenance and repairs",
     "amount": 94,
     "type": "expense"
+  },
+  {
+    "id": "acc-154",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-07-31",
+    "category": "rental_income",
+    "description": "July rental income (Airbnb + Vrbo)",
+    "amount": 1755,
+    "type": "income"
+  },
+  {
+    "id": "acc-155",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-07-31",
+    "category": "cleaning",
+    "description": "Turnover cleaning (2 bookings)",
+    "amount": 280,
+    "type": "expense"
+  },
+  {
+    "id": "acc-156",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-07-31",
+    "category": "utilities",
+    "description": "July utilities",
+    "amount": 285,
+    "type": "expense"
+  },
+  {
+    "id": "acc-157",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-07-31",
+    "category": "supplies",
+    "description": "Guest supplies",
+    "amount": 95,
+    "type": "expense"
+  },
+  {
+    "id": "acc-158",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-07-31",
+    "category": "management",
+    "description": "Property management fee (15%)",
+    "amount": 263,
+    "type": "expense"
+  },
+  {
+    "id": "acc-159",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-08-31",
+    "category": "rental_income",
+    "description": "August rental income",
+    "amount": 1950,
+    "type": "income"
+  },
+  {
+    "id": "acc-160",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-08-31",
+    "category": "cleaning",
+    "description": "Turnover cleaning (2 bookings)",
+    "amount": 280,
+    "type": "expense"
+  },
+  {
+    "id": "acc-161",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-08-31",
+    "category": "utilities",
+    "description": "August utilities",
+    "amount": 260,
+    "type": "expense"
+  },
+  {
+    "id": "acc-162",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-08-31",
+    "category": "supplies",
+    "description": "Guest supplies",
+    "amount": 105,
+    "type": "expense"
+  },
+  {
+    "id": "acc-163",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-08-31",
+    "category": "management",
+    "description": "Property management fee (15%)",
+    "amount": 293,
+    "type": "expense"
+  },
+  {
+    "id": "acc-164",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-09-30",
+    "category": "rental_income",
+    "description": "September rental income (fall foliage season)",
+    "amount": 1405,
+    "type": "income"
+  },
+  {
+    "id": "acc-165",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-09-30",
+    "category": "cleaning",
+    "description": "Turnover cleaning (2 bookings)",
+    "amount": 280,
+    "type": "expense"
+  },
+  {
+    "id": "acc-166",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-09-30",
+    "category": "utilities",
+    "description": "September utilities",
+    "amount": 240,
+    "type": "expense"
+  },
+  {
+    "id": "acc-167",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-09-30",
+    "category": "supplies",
+    "description": "Guest supplies + firewood",
+    "amount": 130,
+    "type": "expense"
+  },
+  {
+    "id": "acc-168",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-09-30",
+    "category": "management",
+    "description": "Property management fee (15%)",
+    "amount": 211,
+    "type": "expense"
+  },
+  {
+    "id": "acc-169",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-10-31",
+    "category": "rental_income",
+    "description": "October rental income (peak foliage)",
+    "amount": 1610,
+    "type": "income"
+  },
+  {
+    "id": "acc-170",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-10-31",
+    "category": "cleaning",
+    "description": "Turnover cleaning (2 bookings)",
+    "amount": 280,
+    "type": "expense"
+  },
+  {
+    "id": "acc-171",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-10-31",
+    "category": "utilities",
+    "description": "October utilities (heating started)",
+    "amount": 320,
+    "type": "expense"
+  },
+  {
+    "id": "acc-172",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-10-31",
+    "category": "supplies",
+    "description": "Guest supplies + firewood",
+    "amount": 145,
+    "type": "expense"
+  },
+  {
+    "id": "acc-173",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-10-31",
+    "category": "management",
+    "description": "Property management fee (15%)",
+    "amount": 242,
+    "type": "expense"
+  },
+  {
+    "id": "acc-174",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-10-31",
+    "category": "maintenance",
+    "description": "Winterization prep — pipes, driveway sealant",
+    "amount": 450,
+    "type": "expense"
+  },
+  {
+    "id": "acc-175",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-11-30",
+    "category": "rental_income",
+    "description": "November rental income (Thanksgiving + early ski)",
+    "amount": 1625,
+    "type": "income"
+  },
+  {
+    "id": "acc-176",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-11-30",
+    "category": "cleaning",
+    "description": "Turnover cleaning (2 bookings)",
+    "amount": 280,
+    "type": "expense"
+  },
+  {
+    "id": "acc-177",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-11-30",
+    "category": "utilities",
+    "description": "November utilities (full heating)",
+    "amount": 410,
+    "type": "expense"
+  },
+  {
+    "id": "acc-178",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-11-30",
+    "category": "supplies",
+    "description": "Guest supplies + firewood + de-icing salt",
+    "amount": 165,
+    "type": "expense"
+  },
+  {
+    "id": "acc-179",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-11-30",
+    "category": "management",
+    "description": "Property management fee (15%)",
+    "amount": 244,
+    "type": "expense"
+  },
+  {
+    "id": "acc-180",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-11-30",
+    "category": "maintenance",
+    "description": "Snow removal service (November)",
+    "amount": 275,
+    "type": "expense"
+  },
+  {
+    "id": "acc-181",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-12-31",
+    "category": "rental_income",
+    "description": "December rental income (peak ski season — Christmas/NYE)",
+    "amount": 4325,
+    "type": "income"
+  },
+  {
+    "id": "acc-182",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-12-31",
+    "category": "cleaning",
+    "description": "Turnover cleaning (2 bookings — deep clean for holidays)",
+    "amount": 340,
+    "type": "expense"
+  },
+  {
+    "id": "acc-183",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-12-31",
+    "category": "utilities",
+    "description": "December utilities (peak heating)",
+    "amount": 480,
+    "type": "expense"
+  },
+  {
+    "id": "acc-184",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-12-31",
+    "category": "supplies",
+    "description": "Holiday guest supplies + firewood + welcome baskets",
+    "amount": 210,
+    "type": "expense"
+  },
+  {
+    "id": "acc-185",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-12-31",
+    "category": "management",
+    "description": "December property management fee (15%)",
+    "amount": 649,
+    "type": "expense"
+  },
+  {
+    "id": "acc-186",
+    "propertyId": "prop-mvt-001",
+    "date": "2025-12-31",
+    "category": "maintenance",
+    "description": "Snow removal + driveway plowing (December)",
+    "amount": 375,
+    "type": "expense"
   }
 ]

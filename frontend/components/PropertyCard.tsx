@@ -17,7 +17,9 @@ export function PropertyCard({ property }: { property: PropertyListing }) {
   const [score, setScore] = useState<DealScoreCard | null>(null);
 
   useEffect(() => {
-    fetchDealScore(property.id).then(setScore).catch(() => {});
+    let cancelled = false;
+    fetchDealScore(property.id).then((s) => { if (!cancelled) setScore(s); }).catch(() => {});
+    return () => { cancelled = true; };
   }, [property.id]);
 
   const gradeColor = score ? gradeColors[score.grade] || "#888" : "#888";

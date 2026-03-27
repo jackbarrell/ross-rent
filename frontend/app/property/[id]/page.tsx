@@ -1,4 +1,5 @@
 import { PropertyDetail } from "./PropertyDetail";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export function generateStaticParams() {
   const cities = [
@@ -7,6 +8,7 @@ export function generateStaticParams() {
     { prefix: "prop-scf", count: 5 },
     { prefix: "prop-den", count: 5 },
     { prefix: "prop-tpa", count: 5 },
+    { prefix: "prop-mvt", count: 5 },
   ];
   const params: Array<{ id: string }> = [];
   for (const c of cities) {
@@ -23,5 +25,9 @@ export default async function PropertyDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <PropertyDetail id={id} />;
+  return (
+    <ErrorBoundary>
+      <PropertyDetail id={id} />
+    </ErrorBoundary>
+  );
 }

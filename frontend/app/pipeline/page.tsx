@@ -35,13 +35,23 @@ export default function PipelinePage() {
   useEffect(() => { loadDeals(); }, []);
 
   const handleStatusChange = async (propertyId: string, status: DealStatus) => {
-    await saveDeal(propertyId, status);
-    setDeals((prev) => prev.map((d) => d.propertyId === propertyId ? { ...d, status, updatedAt: new Date().toISOString() } : d));
+    const prev = deals;
+    setDeals((d) => d.map((deal) => deal.propertyId === propertyId ? { ...deal, status, updatedAt: new Date().toISOString() } : deal));
+    try {
+      await saveDeal(propertyId, status);
+    } catch {
+      setDeals(prev);
+    }
   };
 
   const handleRemove = async (propertyId: string) => {
-    await removeDeal(propertyId);
-    setDeals((prev) => prev.filter((d) => d.propertyId !== propertyId));
+    const prev = deals;
+    setDeals((d) => d.filter((deal) => deal.propertyId !== propertyId));
+    try {
+      await removeDeal(propertyId);
+    } catch {
+      setDeals(prev);
+    }
   };
 
   if (loading) return <div className="pageStack fadeIn"><p>Loading pipeline…</p></div>;

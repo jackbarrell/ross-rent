@@ -598,5 +598,125 @@
     "revenue": 1175,
     "source": "Vrbo",
     "guestName": "E. Adams"
+  },
+  {
+    "id": "bk-061",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-07-04",
+    "checkOut": "2025-07-09",
+    "nights": 5,
+    "revenue": 975,
+    "source": "Airbnb",
+    "guestName": "S. Mitchell"
+  },
+  {
+    "id": "bk-062",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-07-18",
+    "checkOut": "2025-07-22",
+    "nights": 4,
+    "revenue": 780,
+    "source": "Vrbo",
+    "guestName": "D. Nguyen"
+  },
+  {
+    "id": "bk-063",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-08-01",
+    "checkOut": "2025-08-08",
+    "nights": 7,
+    "revenue": 1365,
+    "source": "Airbnb",
+    "guestName": "K. Hartley"
+  },
+  {
+    "id": "bk-064",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-08-15",
+    "checkOut": "2025-08-18",
+    "nights": 3,
+    "revenue": 585,
+    "source": "Airbnb",
+    "guestName": "J. Vermeer"
+  },
+  {
+    "id": "bk-065",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-09-12",
+    "checkOut": "2025-09-15",
+    "nights": 3,
+    "revenue": 585,
+    "source": "Vrbo",
+    "guestName": "L. Frost"
+  },
+  {
+    "id": "bk-066",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-09-26",
+    "checkOut": "2025-09-30",
+    "nights": 4,
+    "revenue": 820,
+    "source": "Airbnb",
+    "guestName": "R. Callahan"
+  },
+  {
+    "id": "bk-067",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-10-03",
+    "checkOut": "2025-10-06",
+    "nights": 3,
+    "revenue": 690,
+    "source": "Airbnb",
+    "guestName": "M. Flanagan"
+  },
+  {
+    "id": "bk-068",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-10-10",
+    "checkOut": "2025-10-14",
+    "nights": 4,
+    "revenue": 920,
+    "source": "Vrbo",
+    "guestName": "C. Torres"
+  },
+  {
+    "id": "bk-069",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-11-07",
+    "checkOut": "2025-11-10",
+    "nights": 3,
+    "revenue": 645,
+    "source": "Airbnb",
+    "guestName": "B. Prescott"
+  },
+  {
+    "id": "bk-070",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-11-27",
+    "checkOut": "2025-12-01",
+    "nights": 4,
+    "revenue": 980,
+    "source": "Vrbo",
+    "guestName": "A. Whitfield"
+  },
+  {
+    "id": "bk-071",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-12-19",
+    "checkOut": "2025-12-26",
+    "nights": 7,
+    "revenue": 2450,
+    "source": "Airbnb",
+    "guestName": "F. Henderson"
+  },
+  {
+    "id": "bk-072",
+    "propertyId": "prop-mvt-001",
+    "checkIn": "2025-12-28",
+    "checkOut": "2026-01-02",
+    "nights": 5,
+    "revenue": 1875,
+    "source": "Vrbo",
+    "guestName": "N. Johansson"
   }
 ]

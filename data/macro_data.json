@@ -148,5 +148,35 @@
       "Home price appreciation 4.2% — above national average",
       "Building permits surging 9.1% — watch for oversupply"
     ]
+  },
+  "Morrisville,VT": {
+    "locationKey": "Morrisville,VT",
+    "populationGrowth": 0.005,
+    "gdpGrowthProxy": 0.018,
+    "tourismDemandIndex": 7.8,
+    "medianHomePrice": 320000,
+    "homePriceAppreciation": 0.045,
+    "unemploymentRate": 0.026,
+    "crimeIndex": 1.8,
+    "walkScore": 35,
+    "economicTrendScore": 62,
+    "marketGrowthScore": 58,
+    "mortgageRate30yr": 6.72,
+    "cpiInflationRate": 0.028,
+    "buildingPermitGrowth": 0.022,
+    "medianHouseholdIncome": 58000,
+    "rentalVacancyRate": 0.042,
+    "strRegulationRisk": 3,
+    "medianRent": 1350,
+    "population": 5400,
+    "employmentGrowth": 0.012,
+    "notes": [
+      "Gateway to Stowe Mountain Resort — strong ski-season tourism",
+      "Proximity to Smugglers Notch drives winter rental demand",
+      "Vermont home prices appreciating 4.5% YoY — rural demand surge",
+      "Low crime index and high quality of life attract remote workers",
+      "Limited housing supply keeps vacancy rates very low",
+      "Summer tourism growing with hiking, cycling, and farm-to-table culture"
+    ]
   }
 }

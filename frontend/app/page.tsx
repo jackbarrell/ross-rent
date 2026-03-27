@@ -22,6 +22,7 @@ export default function HomePage() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [addingMarket, setAddingMarket] = useState(false);
   const [addMarketError, setAddMarketError] = useState<string | null>(null);
+  const [addMarketSuccess, setAddMarketSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     const run = async () => {
@@ -63,6 +64,7 @@ export default function HomePage() {
     if (!selectedLocation) return;
     setAddingMarket(true);
     setAddMarketError(null);
+    setAddMarketSuccess(null);
     try {
       // Parse "City,State" or just "City"
       const parts = selectedLocation.split(",").map(s => s.trim());
@@ -76,6 +78,7 @@ export default function HomePage() {
       ]);
       setLocations(locs);
       setProperties(props);
+      setAddMarketSuccess(`${selectedLocation} added to your watchlist!`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to add market";
       setAddMarketError(msg);
@@ -179,6 +182,13 @@ export default function HomePage() {
               ))}
             </div>
           </>
+        )}
+
+        {addMarketSuccess && (
+          <div className="successBanner" style={{ background: "var(--green-bg, rgba(0,255,136,0.1))", border: "1px solid var(--green, #00ff88)", borderRadius: 8, padding: "12px 16px", marginBottom: 12, color: "var(--green, #00ff88)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span>✓ {addMarketSuccess}</span>
+            <button onClick={() => setAddMarketSuccess(null)} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: "1.1rem" }}>✕</button>
+          </div>
         )}
 
         {!loading && properties.length === 0 && selectedLocation && (
