@@ -14,6 +14,7 @@ export default function PortfolioPage() {
   const [accounting, setAccounting] = useState<CompanyPL | null>(null);
   const [risk, setRisk] = useState<PortfolioRiskMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"portfolio" | "risk" | "accounting">("portfolio");
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export default function PortfolioPage() {
       fetchPortfolioRisk(),
     ])
       .then(([p, a, r]) => { setPortfolio(p); setAccounting(a); setRisk(r); })
-      .catch(() => { /* data unavailable — render empty */ })
+      .catch(() => { setError("Unable to load portfolio data. Is the backend running?"); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -32,6 +33,14 @@ export default function PortfolioPage() {
       <div className="pageStack fadeIn">
         <div className="skeleton skeletonBlock" />
         <div className="skeleton skeletonBlock" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pageStack fadeIn">
+        <p className="error">{error}</p>
       </div>
     );
   }

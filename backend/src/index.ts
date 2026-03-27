@@ -27,12 +27,15 @@ app.use(express.json());
 
 const db = useMockData ? initDatabase() : null;
 
-const listingProvider: ListingDataProvider = useMockData
-  ? new MockListingProvider(db!)
-  : new LiveListingProvider();
-const strProvider: ShortTermRentalDataProvider = useMockData
-  ? new MockShortTermRentalProvider(db!)
-  : new LiveShortTermRentalProvider();
+let listingProvider: ListingDataProvider;
+let strProvider: ShortTermRentalDataProvider;
+if (useMockData) {
+  listingProvider = new MockListingProvider(db!);
+  strProvider = new MockShortTermRentalProvider(db!);
+} else {
+  listingProvider = new LiveListingProvider();
+  strProvider = new LiveShortTermRentalProvider();
+}
 
 const analysisEngine = new AnalysisEngine();
 const aiSummaryService = new AiSummaryService(process.env.OPENAI_API_KEY, process.env.OPENAI_MODEL);

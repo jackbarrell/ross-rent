@@ -27,21 +27,22 @@ export function MemoPanel({ propertyId }: { propertyId: string }) {
     URL.revokeObjectURL(url);
   };
 
+  const escapeHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
   const handlePdf = () => {
     if (!memo) return;
     const html = memo.sections.map((s) => {
       const content = s.content
-        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        .replace(/\*(.*?)\*/g, "<em>$1</em>")
         .split("\n")
         .map((line) => {
-          if (line.startsWith("|")) return `<code>${line}</code><br/>`;
-          if (line.startsWith("- ")) return `<li>${line.substring(2)}</li>`;
+          const escaped = escapeHtml(line);
+          if (line.startsWith("|")) return `<code>${escaped}</code><br/>`;
+          if (line.startsWith("- ")) return `<li>${escapeHtml(line.substring(2))}</li>`;
           if (line.trim() === "") return "<br/>";
-          return `<p style="margin:2px 0">${line}</p>`;
+          return `<p style="margin:2px 0">${escaped.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>")}</p>`;
         })
         .join("");
-      return `<h2 style="color:#0ea5e9;border-bottom:1px solid #ddd;padding-bottom:4px;margin-top:20px">${s.title}</h2>${content}`;
+      return `<h2 style="color:#0ea5e9;border-bottom:1px solid #ddd;padding-bottom:4px;margin-top:20px">${escapeHtml(s.title)}</h2>${content}`;
     }).join("");
 
     const printWindow = window.open("", "_blank");
@@ -96,7 +97,29 @@ h1{font-size:20px;margin-bottom:4px}h2{font-size:15px}code{font-size:11px;displa
                     return <p key={j}><strong>{line.replace(/\*\*/g, "")}</strong></p>;
                   }
                   if (line.trim() === "") return <br key={j} />;
-                  return <p key={j} dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>") }} />;
+                  // Parse bold/italic without dangerouslySetInnerHTML
+                  const parts: React.ReactNode[] = [];
+                  let remaining = line;
+                  let partIdx = 0;
+                  while (remaining) {
+                    const boldMatch = remaining.match(/\*\*(.*?)\*\*/);
+                    const italicMatch = remaining.match(/\*(.*?)\*/);
+                    const match = boldMatch && italicMatch
+                      ? (boldMatch.index! <= italicMatch.index! ? boldMatch : italicMatch)
+                      : boldMatch || italicMatch;
+                    if (!match || match.index === undefined) {
+                      parts.push(remaining);
+                      break;
+                    }
+                    if (match.index > 0) parts.push(remaining.slice(0, match.index));
+                    if (match[0].startsWith("**")) {
+                      parts.push(<strong key={partIdx++}>{match[1]}</strong>);
+                    } else {
+                      parts.push(<em key={partIdx++}>{match[1]}</em>);
+                    }
+                    remaining = remaining.slice(match.index + match[0].length);
+                  }
+                  return <p key={j}>{parts}</p>;
                 })}
               </div>
             </div>

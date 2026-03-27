@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { fetchHeatmap } from "@/lib/api";
 import { SensitivityHeatmap } from "@/lib/types";
 
@@ -46,8 +46,8 @@ export function HeatmapPanel({ propertyId }: { propertyId: string }) {
 
           {/* Data rows */}
           {data.adrSteps.map((adrMult) => (
-            <>
-              <div key={`label-${adrMult}`} className="heatmapRowHeader">
+            <Fragment key={adrMult}>
+              <div className="heatmapRowHeader">
                 {adrMult === 1.0 ? "Base" : `${(adrMult * 100).toFixed(0)}%`}
               </div>
               {data.occupancySteps.map((occMult) => {
@@ -65,7 +65,7 @@ export function HeatmapPanel({ propertyId }: { propertyId: string }) {
                   </div>
                 );
               })}
-            </>
+            </Fragment>
           ))}
         </div>
       </div>

@@ -112,7 +112,6 @@ export function PropertyDetail({ id }: { id: string }) {
   const [recalcError, setRecalcError] = useState<string | null>(null);
 
   const recalculate = useCallback(async () => {
-    if (Object.keys(overrides).length === 0 && renovationCost === 0) return;
     try {
       setIsRecalculating(true);
       setRecalcError(null);

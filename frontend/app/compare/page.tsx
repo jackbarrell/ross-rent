@@ -15,6 +15,7 @@ export default function ComparePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [comparisons, setComparisons] = useState<ComparisonRow[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [compareError, setCompareError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLocations().then((r) => {
@@ -40,11 +41,13 @@ export default function ComparePage() {
   const runComparison = async () => {
     if (selected.size < 2) return;
     setLoading(true);
+    setCompareError(null);
     try {
       const result = await fetchComparison(Array.from(selected));
       setComparisons(result.comparisons);
     } catch {
       setComparisons(null);
+      setCompareError("Comparison failed. Please try again.");
     } finally { setLoading(false); }
   };
 
@@ -91,6 +94,8 @@ export default function ComparePage() {
           </table>
         </div>
       </section>
+
+      {compareError && <p className="error" style={{ marginTop: 12 }}>{compareError}</p>}
 
       {comparisons && comparisons.length > 0 && (
         <section className="panel">

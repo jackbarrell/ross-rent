@@ -481,23 +481,22 @@ export function createDataRouter(
   router.get("/portfolio-risk", async (_req, res, next) => {
     try {
       const properties = await listingProvider.searchProperties("");
-      const analyses: InvestmentAnalysis[] = [];
-      const models: import("../models.js").FinancialModel[] = [];
-      const propsOut: PropertyListing[] = [];
-
-      await Promise.all(
+      const results = await Promise.all(
         properties.map(async (property) => {
           const result = await runAnalysis(property.id);
-          if (!result) return;
+          if (!result) return null;
           const locationKey = `${property.city},${property.state}`;
           const macro = getMacroData(locationKey);
           const renovation = inferRenovation(property);
           const model = generateFinancialModel(property, result.analysis, renovation.totalCapexEstimate, macro);
-          propsOut.push(property);
-          analyses.push(result.analysis);
-          models.push(model);
+          return { property, analysis: result.analysis, model };
         }),
       );
+
+      const valid = results.filter((r): r is NonNullable<typeof r> => r !== null);
+      const propsOut = valid.map((r) => r.property);
+      const analyses = valid.map((r) => r.analysis);
+      const models = valid.map((r) => r.model);
 
       const risk = calculatePortfolioRisk(propsOut, analyses, models);
       res.json(risk);
