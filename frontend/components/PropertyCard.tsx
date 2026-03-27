@@ -33,6 +33,8 @@ export function PropertyCard({ property }: { property: PropertyListing }) {
             alt={property.address}
             className="cardImage"
             loading="lazy"
+            width={800}
+            height={600}
           />
         ) : (
           <div className="cardImageFallback">

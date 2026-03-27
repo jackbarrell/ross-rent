@@ -53,9 +53,9 @@ export function generateDealScoreCard(
 ): DealScoreCard {
   const breakdown: DealScoreBreakdown[] = [];
 
-  // 1. Yield Score (20% weight)
+  // 1. Yield Score (20% weight) — score 100 at 12% yield, linear below
   const yieldPct = analysis.yieldProxy * 100;
-  const yieldScore = clamp(yieldPct / 0.12 * 100, 0, 100);
+  const yieldScore = clamp((yieldPct / 12) * 100, 0, 100);
   breakdown.push({
     category: "Yield & Returns",
     score: Math.round(yieldScore),

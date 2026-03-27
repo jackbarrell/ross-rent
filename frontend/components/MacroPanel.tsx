@@ -43,7 +43,7 @@ export function MacroPanel({ locationKey }: { locationKey: string }) {
         <MetricCard label="Crime Index" value={data.crimeIndex.toFixed(1)} />
         <MetricCard label="Walk Score" value={String(data.walkScore)} />
         <MetricCard label="Economic Trend" value={`${data.economicTrendScore}/100`} />
-        {data.mortgageRate30yr != null && <MetricCard label="30-yr Mortgage" value={fmtPct(data.mortgageRate30yr / 100)} />}
+        {data.mortgageRate30yr != null && <MetricCard label="30-yr Mortgage" value={`${data.mortgageRate30yr.toFixed(1)}%`} />}
         {data.cpiInflationRate != null && <MetricCard label="CPI Inflation" value={fmtPct(data.cpiInflationRate)} />}
         {data.medianHouseholdIncome != null && <MetricCard label="Median Income" value={fmt$(data.medianHouseholdIncome)} />}
         {data.medianRent != null && <MetricCard label="Median Rent" value={fmt$(data.medianRent)} />}

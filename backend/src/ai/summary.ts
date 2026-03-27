@@ -34,7 +34,7 @@ export class AiSummaryService {
 
     // --- Verdict (nuanced) ---
     const verdict =
-      analysis.attractivenessScore >= 75 ? "Promising"
+      analysis.attractivenessScore >= 75 ? "Strong Buy"
         : analysis.attractivenessScore >= 55 ? "Promising"
           : analysis.attractivenessScore >= 40 ? "Borderline"
             : "Caution";

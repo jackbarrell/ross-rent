@@ -13,4 +13,4 @@ services:
       - key: USE_MOCK_DATA
         value: "true"
       - key: FRONTEND_ORIGIN
-        value: "*"
+        value: "https://ross-rent.onrender.com"

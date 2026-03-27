@@ -9,6 +9,12 @@ import { MetricCard } from "@/components/MetricCard";
 function fmt$(n: number) { return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 }); }
 function fmtPct(n: number) { return (n * 100).toFixed(1) + "%"; }
 
+const riskHigh = /concentration|single property/i;
+const riskMed = /cashflow|volatility|dispersion/i;
+function riskSeverity(f: string): "High" | "Medium" | "Low" {
+  return riskHigh.test(f) ? "High" : riskMed.test(f) ? "Medium" : "Low";
+}
+
 export default function PortfolioPage() {
   const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(null);
   const [accounting, setAccounting] = useState<CompanyPL | null>(null);
@@ -44,6 +50,8 @@ export default function PortfolioPage() {
       </div>
     );
   }
+
+  const allocTotal = risk?.allocationBreakdown.reduce((sum, a) => sum + a.percentage, 0) || 1;
 
   return (
     <div className="pageStack fadeIn">
@@ -116,7 +124,7 @@ export default function PortfolioPage() {
                       <td className="cellRight">{fmt$(Math.round(p.estimatedNoi))}</td>
                       <td className="cellRight">{fmtPct(p.yieldProxy)}</td>
                       <td className="cellRight">
-                        <span className={`scoreBadge ${p.score >= 65 ? "scoreGood" : p.score >= 45 ? "scoreMid" : "scoreLow"}`}>
+                        <span className={`scoreBadge ${p.score >= 60 ? "scoreGood" : p.score >= 45 ? "scoreMid" : "scoreLow"}`}>
                           {p.score.toFixed(0)}
                         </span>
                       </td>
@@ -189,7 +197,7 @@ export default function PortfolioPage() {
             <h2>Allocation Breakdown</h2>
             <div className="allocationBar">
               {risk.allocationBreakdown.map((s) => (
-                <div key={s.label} className="allocationSeg" style={{ width: `${s.percentage * 100}%`, background: s.color }} title={`${s.label}: ${fmtPct(s.percentage)}`} />
+                <div key={s.label} className="allocationSeg" style={{ width: `${(s.percentage / allocTotal) * 100}%`, background: s.color }} title={`${s.label}: ${fmtPct(s.percentage)}`} />
               ))}
             </div>
             <div className="allocationLegend">
@@ -206,12 +214,16 @@ export default function PortfolioPage() {
             <section className="panel">
               <h2>Risk Factors</h2>
               <div className="riskFactorsList">
-                {risk.riskFactors.map((f, i) => (
-                  <div key={i} className="riskFactorItem riskFactorMedium">
-                    <span className="riskFactorSeverity">Risk</span>
+                {risk.riskFactors.map((f, i) => {
+                  const severity = riskSeverity(f);
+                  const cls = severity === "High" ? "riskFactorHigh" : severity === "Medium" ? "riskFactorMedium" : "riskFactorLow";
+                  return (
+                  <div key={i} className={`riskFactorItem ${cls}`}>
+                    <span className="riskFactorSeverity">{severity}</span>
                     <span className="riskFactorDesc">{f}</span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}
