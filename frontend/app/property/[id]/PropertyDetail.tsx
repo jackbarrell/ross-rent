@@ -86,6 +86,7 @@ export function PropertyDetail({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("market");
+  const [heroImgError, setHeroImgError] = useState(false);
 
   // Scenario editor state
   const [renovationCost, setRenovationCost] = useState(0);
@@ -166,12 +167,15 @@ export function PropertyDetail({ id }: { id: string }) {
 
         {/* ─── Property Header ─── */}
         <div className="propertyHeroImage">
-          {property.imageUrl ? (
-            <img src={property.imageUrl} alt={property.address} width={1200} height={600} />
+          {property.imageUrl && !heroImgError ? (
+            <img src={property.imageUrl} alt={property.address} width={1200} height={600} onError={() => setHeroImgError(true)} />
           ) : (
             <div className="heroImageFallback">
-              <span className="heroImageFallbackIcon">⌂</span>
-              <span className="heroImageFallbackText">No image available</span>
+              <div className="placeholderAiIcon placeholderAiIconLg">
+                <svg width="64" height="64" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="rgba(56,189,248,.25)" strokeWidth="1.5" strokeDasharray="4 3" /><circle cx="24" cy="24" r="10" stroke="rgba(56,189,248,.35)" strokeWidth="1" /><circle cx="24" cy="24" r="3" fill="rgba(56,189,248,.4)" /><line x1="24" y1="4" x2="24" y2="14" stroke="rgba(56,189,248,.18)" strokeWidth="1" /><line x1="24" y1="34" x2="24" y2="44" stroke="rgba(56,189,248,.18)" strokeWidth="1" /><line x1="4" y1="24" x2="14" y2="24" stroke="rgba(56,189,248,.18)" strokeWidth="1" /><line x1="34" y1="24" x2="44" y2="24" stroke="rgba(56,189,248,.18)" strokeWidth="1" /></svg>
+              </div>
+              <span className="placeholderComingSoon placeholderComingSoonLg">Coming Soon</span>
+              <span className="heroImageFallbackText">AI-generated visualization in progress</span>
             </div>
           )}
         </div>

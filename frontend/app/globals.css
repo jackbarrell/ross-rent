@@ -315,12 +315,33 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   height: 100%;
   background: linear-gradient(135deg, #0c1929 0%, #131b3a 50%, #0f1f3d 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 10px;
 }
-.cardImageFallbackIcon {
-  font-size: 3rem;
-  color: rgba(56,189,248,.15);
+.placeholderAiIcon {
+  animation: placeholderSpin 12s linear infinite;
+  opacity: 0.8;
+}
+.placeholderAiIconLg svg {
+  width: 64px;
+  height: 64px;
+}
+@keyframes placeholderSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.placeholderComingSoon {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(56,189,248,.45);
+}
+.placeholderComingSoonLg {
+  font-size: 0.95rem;
+  color: rgba(56,189,248,.55);
 }
 .cardImageOverlay {
   position: absolute;
@@ -380,7 +401,7 @@ a:hover { color: var(--accent-dark); text-decoration: none; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
 }
 .heroImageFallbackIcon {
   font-size: 4rem;

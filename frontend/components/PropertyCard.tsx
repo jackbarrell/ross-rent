@@ -23,11 +23,12 @@ export function PropertyCard({ property }: { property: PropertyListing }) {
   }, [property.id]);
 
   const gradeColor = score ? gradeColors[score.grade] || "#888" : "#888";
+  const [imgError, setImgError] = useState(false);
 
   return (
     <Link href={`/property/${property.id}`} className="card linkCard cardWithImage">
       <div className="cardImageWrap">
-        {property.imageUrl ? (
+        {property.imageUrl && !imgError ? (
           <img
             src={property.imageUrl}
             alt={property.address}
@@ -35,10 +36,14 @@ export function PropertyCard({ property }: { property: PropertyListing }) {
             loading="lazy"
             width={800}
             height={600}
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="cardImageFallback">
-            <span className="cardImageFallbackIcon">⌂</span>
+            <div className="placeholderAiIcon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="rgba(56,189,248,.25)" strokeWidth="1.5" strokeDasharray="4 3" /><circle cx="24" cy="24" r="10" stroke="rgba(56,189,248,.35)" strokeWidth="1" /><circle cx="24" cy="24" r="3" fill="rgba(56,189,248,.4)" /><line x1="24" y1="4" x2="24" y2="14" stroke="rgba(56,189,248,.18)" strokeWidth="1" /><line x1="24" y1="34" x2="24" y2="44" stroke="rgba(56,189,248,.18)" strokeWidth="1" /><line x1="4" y1="24" x2="14" y2="24" stroke="rgba(56,189,248,.18)" strokeWidth="1" /><line x1="34" y1="24" x2="44" y2="24" stroke="rgba(56,189,248,.18)" strokeWidth="1" /></svg>
+            </div>
+            <span className="placeholderComingSoon">Coming Soon</span>
           </div>
         )}
         {score && (
